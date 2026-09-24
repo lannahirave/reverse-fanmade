@@ -1,3 +1,4 @@
+using Serilog;
 using System.Diagnostics;
 using System.Net;
 using System.Threading.Channels;
@@ -18,7 +19,7 @@ public sealed class SignalingProvider(SignalingOptions options, SignalingDirecto
 
     public override async Task StartAsync(CancellationToken cancellationToken)
     {
-        if (!options.Enabled) { logger.LogInformation("Signaling provider disabled"); return; }
+        if (!options.Enabled) { Log.ForContext("UserFacing", true).Information("Player connection support is disabled in settings."); return; }
         host = new DtlsUdpHost(IPAddress.Parse(options.BindAddress), options.Port, options.MaxConnections,
             options.HandshakeTimeoutSeconds, directory.LookupPsk, Connected, HostStage,
             datagramLog: (direction, remote, bytes) => detailed.Write("udpDatagram", new
@@ -28,15 +29,16 @@ public sealed class SignalingProvider(SignalingOptions options, SignalingDirecto
             }));
         await host.StartAsync(cancellationToken);
         directory.SetListening(true);
-        logger.LogWarning("FIELD TEST signaling UDP bound at {Bind}:{Port}; advertised {PublicHost}:{PublicPort}; experimental replies {Experimental}. HTTP tunnels do not carry UDP. Gameplay unverified.",
+        Log.ForContext("UserFacing", true).Information("Player connection support is listening on UDP port {Port}.", options.Port);
+        logger.LogDebug("Signaling UDP bound at {Bind}:{Port}; advertised {PublicHost}:{PublicPort}; extended replies {Experimental}.",
             options.BindAddress, options.Port, options.PublicHost, options.PublicPort, options.ExperimentalReplies);
         if (options.ExperimentalReplies)
-            logger.LogWarning("UNVERIFIED reply settings: type19={Reply19}, type21={Reply21}, registration fieldB={FieldB}. These values are experiment inputs, not recovered semantics.",
+            logger.LogDebug("Signaling reply settings: type19={Reply19}, type21={Reply21}, registration fieldB={FieldB}.",
                 options.Reply19, options.Reply21, options.RegistrationFieldBIsPeerNumber ? "peer-number" : options.RegistrationFieldB.ToString());
         if (options.NegativeControlReply is { } negativeReply)
-            logger.LogWarning("NEGATIVE CONTROL: reply {Reply} will be zero; startup/registration will not complete. All new associations on this provider use this test mode.", negativeReply);
+            Log.ForContext("UserFacing", true).Warning("Connection test mode {Reply} is enabled. Players cannot complete connection setup in this mode.", negativeReply);
         if (options.PeerDiagnostics)
-            logger.LogWarning("Copy-only peer diagnostics enabled. Observed records do not prove client acceptance or gameplay readiness; raw payloads and identity values are not logged.");
+            logger.LogDebug("Peer diagnostics enabled; payload contents and identity values are excluded.");
         await base.StartAsync(cancellationToken);
     }
 

@@ -1,3 +1,4 @@
+using Serilog;
 using System.Net.WebSockets;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -78,6 +79,8 @@ public sealed class NotificationHub(RequestLog log, GameState state, DetailedTra
                             if (!connections.TryGetValue(account, out var peers)) connections[account] = peers = [];
                             peers.Add(peer);
                             assigned = true;
+                            Log.ForContext("UserFacing", true).ForContext("AccountId", account)
+                                .Information("Player notification connection is ready.");
                         }
                     }
                     else if (!assigned) throw new InvalidDataException("Assign the notification connection first.");
@@ -106,7 +109,13 @@ public sealed class NotificationHub(RequestLog log, GameState state, DetailedTra
             finally
             {
                 try { socket.Abort(); }
-                finally { disconnected(); }
+                finally
+                {
+                    disconnected();
+                    if (assigned)
+                        Log.ForContext("UserFacing", true).ForContext("AccountId", account)
+                            .Information("Player notification connection closed.");
+                }
             }
         }
     }

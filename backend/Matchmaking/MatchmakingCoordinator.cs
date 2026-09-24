@@ -1,3 +1,4 @@
+using Serilog;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json.Nodes;
@@ -60,6 +61,8 @@ public sealed class MatchmakingCoordinator(
             var ticket = new Ticket(account, request, ++order, DateTimeOffset.UtcNow.AddSeconds(options.TicketLifetimeSeconds));
             tickets.Add(ticket.Id, ticket);
             TicketEvent(ticket, "submitted");
+            Log.ForContext("UserFacing", true).ForContext("TicketId", ticket.Id)
+                .Information("Player is searching for a match. Waiting for compatible players.");
 
             return ticket.Wire();
         }
@@ -76,6 +79,7 @@ public sealed class MatchmakingCoordinator(
             ticket.State = "canceled";
             ticket.Sequence++;
             TicketEvent(ticket, "canceled");
+            Log.ForContext("UserFacing", true).ForContext("TicketId", ticket.Id).Information("Match search canceled.");
             return new();
         }
     }
@@ -181,6 +185,8 @@ public sealed class MatchmakingCoordinator(
                 SessionEvent(session, "member:players:created", GameJoinProtocol.CreatedEvent(player));
                 if (refreshSignaling) RefreshSignaling(session, account);
                 else TryAllocateSignaling(session);
+                Log.ForContext("UserFacing", true).ForContext("SessionId", session.Id)
+                    .Information("Player joined the lobby. {PlayerCount}/{Capacity} places filled.", session.Players.Count, session.Capacity);
                 return GameJoinProtocol.Reply(session.Id, player, session.Keyword);
             }
             if (path.EndsWith("/members", StringComparison.Ordinal))
@@ -328,6 +334,8 @@ public sealed class MatchmakingCoordinator(
         session.Players.Add(account, player);
         session.Sequence++;
         SessionEvent(session, "member:players:created", GameJoinProtocol.CreatedEvent(player));
+        Log.ForContext("UserFacing", true).ForContext("SessionId", session.Id)
+            .Information("Private lobby created. Waiting for players to join.");
         return new JsonObject
         {
             ["gameSessions"] = new JsonArray(new JsonObject
@@ -372,6 +380,7 @@ public sealed class MatchmakingCoordinator(
             });
             TicketEvent(ticket, "failed");
         }
+        Log.ForContext("UserFacing", true).ForContext("SessionId", session.Id).Information("Game session closed.");
     }
 
     private void LeaveSession(GameSessionRegistry.Session session, string account, string reason = "")
@@ -390,6 +399,8 @@ public sealed class MatchmakingCoordinator(
         session.Reserved.Remove(account);
         session.Sequence++;
         SessionEvent(session, "member:players:deleted", GameJoinProtocol.DeletedEvent(player, reason), recipients);
+        Log.ForContext("UserFacing", true).ForContext("SessionId", session.Id)
+            .Information("Player left the lobby. {PlayerCount}/{Capacity} places filled.", session.Players.Count, session.Capacity);
         if (!session.ProviderAllocated) return;
         if (session.Players.Count < 2)
         {
@@ -555,6 +566,8 @@ public sealed class MatchmakingCoordinator(
                     })
                 });
             }
+            Log.ForContext("UserFacing", true).ForContext("SessionId", session.Id)
+                .Information("Match found for {PlayerCount} players. Waiting for them to join.", selected.Count);
         }
     }
 
@@ -566,6 +579,8 @@ public sealed class MatchmakingCoordinator(
             ticket.State = "expired";
             ticket.Sequence++;
             TicketEvent(ticket, "timedOut");
+            Log.ForContext("UserFacing", true).ForContext("TicketId", ticket.Id)
+                .Information("Match search expired before enough compatible players joined.");
         }
         foreach (var session in registry.Sessions.Values.ToArray())
         {

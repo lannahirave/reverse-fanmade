@@ -1,3 +1,4 @@
+using Serilog;
 using System.Text.Json;
 using System.Reflection;
 
@@ -41,7 +42,7 @@ public abstract class HotReloadStore<TEntry> : IDisposable where TEntry : class
         catch (Exception exception)
         {
 
-            Console.Error.WriteLine($"[{GetType().Name}] Reload failed: {exception.Message}");
+            Log.ForContext("UserFacing", true).Warning(exception, "Response settings could not be reloaded. Keeping the previous settings.");
         }
     }
 
