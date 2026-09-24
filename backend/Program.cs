@@ -33,8 +33,8 @@ var steam = builder.Configuration.GetSection("Steam").Get<SteamOptions>() ?? new
 steam.Validate();
 builder.Services.AddSingleton(capture);
 builder.Services.AddSingleton(steam);
-builder.Services.AddSingleton(new RequestLog(Path.GetFullPath(capture.LogDirectory, builder.Environment.ContentRootPath)));
-builder.Services.AddSingleton(new DetailedTrafficLog(
+builder.Services.AddSingleton(_ => new RequestLog(Path.GetFullPath(capture.LogDirectory, builder.Environment.ContentRootPath)));
+builder.Services.AddSingleton(_ => new DetailedTrafficLog(
     Path.GetFullPath(capture.LogDirectory, builder.Environment.ContentRootPath),
     () => File.Exists(Path.GetFullPath(capture.DetailedLogsControlFile, builder.Environment.ContentRootPath))));
 builder.Services.AddSingleton(_ =>
@@ -80,6 +80,8 @@ builder.Services.AddSingleton<DynamicRoutes>();
 builder.Services.AddSingleton<ProtocolMiddleware>();
 
 var app = builder.Build();
+app.Services.GetRequiredService<RequestLog>().Failed += exception =>
+    app.Logger.LogError(exception, "Request logging failed");
 app.Services.GetRequiredService<DetailedTrafficLog>().Failed += exception =>
     app.Logger.LogError(exception, "Detailed traffic logging failed");
 app.UseWebSockets();

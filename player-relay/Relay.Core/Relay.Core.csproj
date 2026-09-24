@@ -6,5 +6,6 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup><FrameworkReference Include="Microsoft.AspNetCore.App" /></ItemGroup>
-  <ItemGroup><Compile Include="../../traffic/DetailedTrafficLog.cs" Link="Traffic/DetailedTrafficLog.cs" /></ItemGroup>
+  <ItemGroup><Compile Include="../../traffic/*.cs" Link="Traffic/%(Filename)%(Extension)" /></ItemGroup>
+  <ItemGroup><PackageReference Include="Serilog.Sinks.File" Version="7.0.0" /></ItemGroup>
 </Project>

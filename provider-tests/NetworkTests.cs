@@ -13,6 +13,13 @@ namespace Provider.Tests;
 
 internal static class NetworkTests
 {
+    private static string[] ReadLogLines(string path)
+    {
+        using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+        using var reader = new StreamReader(stream);
+        return reader.ReadToEnd().Split('\n', StringSplitOptions.RemoveEmptyEntries);
+    }
+
     private static string Artifacts() => Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../../../artifacts", Guid.NewGuid().ToString("N")));
 
     private static int FreePort()
@@ -111,7 +118,7 @@ internal static class NetworkTests
             rebound.ExclusiveAddressUse = true;
             rebound.Bind(endpoint);
         }
-        var records = System.IO.Directory.GetFiles(folder, "*.jsonl").SelectMany(File.ReadAllLines).Select(line => JsonNode.Parse(line)!).ToArray();
+        var records = System.IO.Directory.GetFiles(folder, "*.jsonl").SelectMany(ReadLogLines).Select(line => JsonNode.Parse(line)!).ToArray();
         foreach (var stage in new[] { "dtls_authenticated", "application_registered", "peer_payload_forwarded", "all_members_registered_readiness_sent_NOT_gameplay_verified" })
             Assert.That(records.Any(r => r["stage"]?.GetValue<string>() == stage), "real provider missing stage " + stage);
         Assert.That(records.Count(r => r["stage"]?.GetValue<string>() == "application_registered") == 2, "wire retry duplicated registration");
@@ -184,7 +191,7 @@ internal static class NetworkTests
             directory.Remove(session);
             await provider.StopAsync(CancellationToken.None);
         }
-        var records = System.IO.Directory.GetFiles(folder, "*.jsonl").SelectMany(File.ReadAllLines)
+        var records = System.IO.Directory.GetFiles(folder, "*.jsonl").SelectMany(ReadLogLines)
             .Select(line => JsonNode.Parse(line)!).ToArray();
         Assert.That(records.Any(r => r["stage"]?.GetValue<string>() == "peer_payload_observed"
             && r["details"]!["payload"]!["outcome"]?.GetValue<string>() == "stale_topology_dropped"),
@@ -241,7 +248,7 @@ internal static class NetworkTests
                 Assert.That(!directory.IsActive("negative") && !directory.AllRegistered("negative"), "negative control activated transport");
             }
             finally { await provider.StopAsync(CancellationToken.None); }
-            var records = System.IO.Directory.GetFiles(folder, "*.jsonl").SelectMany(File.ReadAllLines).Select(line => JsonNode.Parse(line)!).ToArray();
+            var records = System.IO.Directory.GetFiles(folder, "*.jsonl").SelectMany(ReadLogLines).Select(line => JsonNode.Parse(line)!).ToArray();
             Assert.That(records.Any(r => r["stage"]?.GetValue<string>() == $"negative_control_reply{reply}_zero"), "negative-control diagnostic missing");
             Assert.That(!records.Any(r => r["stage"]?.GetValue<string>() is "application_registered" or "experimental_reply21_and_gate5"), "negative control logged a success gate");
         }

@@ -102,9 +102,12 @@ public sealed class NotificationHub(RequestLog log, GameState state, DetailedTra
                 }
             }
             peer.Stop.Cancel();
-            await writer;
-            socket.Abort();
-            disconnected();
+            try { await writer; }
+            finally
+            {
+                try { socket.Abort(); }
+                finally { disconnected(); }
+            }
         }
     }
 
@@ -125,6 +128,9 @@ public sealed class NotificationHub(RequestLog log, GameState state, DetailedTra
             }
         }
         catch (Exception ex) when (ex is WebSocketException or OperationCanceledException or IOException)
+        {
+        }
+        finally
         {
             peer.Stop.Cancel();
         }

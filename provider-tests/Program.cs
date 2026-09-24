@@ -4,6 +4,7 @@ internal static class Program
 {
     public static async Task<int> Main(string[] args)
     {
+        if (args is ["--logging-tests"]) { LoggingTests.Run(); NotificationLifetimeTests.Run(); return 0; }
         if (args is ["--http-probe"]) return await NetworkTests.HttpProbe();
         if (args.Length != 0)
         {
@@ -12,6 +13,8 @@ internal static class Program
         }
         (string Name, Action Run)[] tests =
         [
+            ("notification writer failure cleanup", NotificationLifetimeTests.Run),
+            ("rolling JSON logging and failure isolation", LoggingTests.Run),
             ("explicit experimental options and resource bounds", DirectoryTests.Options),
             ("per-account/session credentials, copies and allocation idempotency", DirectoryTests.Credentials),
             ("membership and capacity bounds; removal releases capacity", DirectoryTests.Bounds),

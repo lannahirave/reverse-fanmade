@@ -6,50 +6,19 @@ namespace ReVerse.Traffic;
 public sealed class DetailedTrafficLog(string directoryPath, Func<bool>? enabledProvider = null) : IDisposable
 {
     private static readonly UTF8Encoding Utf8 = new(false, true);
-    private readonly object gate = new();
-    private StreamWriter? writer;
-    private string? currentPath;
+    private readonly JsonFileLog log = new(directoryPath, "detailed-traffic");
     private bool enabled;
-    private Exception? lastError;
 
-    public string DirectoryPath { get; } = Path.GetFullPath(directoryPath);
+    public string DirectoryPath => log.DirectoryPath;
     public bool Enabled { get => Volatile.Read(ref enabled); set => Volatile.Write(ref enabled, value); }
     public bool IsEnabled => Enabled || enabledProvider?.Invoke() == true;
-    public Exception? LastError => Volatile.Read(ref lastError);
-    public event Action<Exception>? Failed;
+    public Exception? LastError => log.LastError;
+    public event Action<Exception>? Failed { add => log.Failed += value; remove => log.Failed -= value; }
 
     public void Write(string type, object data)
     {
         if (!IsEnabled) return;
-        var timestamp = DateTimeOffset.UtcNow;
-        var path = Path.Combine(DirectoryPath, $"detailed-traffic-{timestamp:yyyy-MM-dd}.jsonl");
-        var line = JsonSerializer.Serialize(new { timestampUtc = timestamp, type, data });
-        Exception? failure = null;
-        lock (gate)
-        {
-            try
-            {
-                if (currentPath != path)
-                {
-                    writer?.Dispose();
-                    Directory.CreateDirectory(DirectoryPath);
-                    writer = new StreamWriter(new FileStream(path, FileMode.Append, FileAccess.Write, FileShare.ReadWrite, 65536),
-                        new UTF8Encoding(false)) { AutoFlush = true };
-                    currentPath = path;
-                }
-                writer!.WriteLine(line);
-                Volatile.Write(ref lastError, null);
-            }
-            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
-            {
-                failure = exception;
-                try { writer?.Dispose(); } catch (IOException) { }
-                writer = null;
-                currentPath = null;
-            }
-        }
-        if (failure is not null && Interlocked.Exchange(ref lastError, failure) is null)
-            Failed?.Invoke(failure);
+        log.Write(JsonSerializer.Serialize(new { timestampUtc = DateTimeOffset.UtcNow, type, data }));
     }
 
     public static TrafficPayload Payload(ReadOnlySpan<byte> bytes)
@@ -60,15 +29,7 @@ public sealed class DetailedTrafficLog(string directoryPath, Func<bool>? enabled
         return new TrafficPayload(bytes.Length, Convert.ToBase64String(bytes), text);
     }
 
-    public void Dispose()
-    {
-        lock (gate)
-        {
-            writer?.Dispose();
-            writer = null;
-            currentPath = null;
-        }
-    }
+    public void Dispose() => log.Dispose();
 }
 
 public sealed record TrafficPayload(int ByteCount, string Base64, string? Utf8);

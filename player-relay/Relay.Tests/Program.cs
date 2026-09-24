@@ -120,12 +120,15 @@ try
         await ws.CloseAsync(WebSocketCloseStatus.NormalClosure, "done", CancellationToken.None).WaitAsync(TimeSpan.FromSeconds(5));
         Check(ws.State == WebSocketState.Closed, "WebSocket close handshake " + secure);
     }
-    var detailedPath = Directory.GetFiles(detailedDirectory, "detailed-traffic-*.jsonl").Single();
     string[] ReadDetailedLines()
     {
-        using var file = new FileStream(detailedPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-        using var reader = new StreamReader(file);
-        return reader.ReadToEnd().Split('\n', StringSplitOptions.RemoveEmptyEntries);
+        return Directory.GetFiles(detailedDirectory, "detailed-traffic-*.jsonl").Order(StringComparer.Ordinal)
+            .SelectMany(path =>
+            {
+                using var file = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                using var reader = new StreamReader(file);
+                return reader.ReadToEnd().Split('\n', StringSplitOptions.RemoveEmptyEntries);
+            }).ToArray();
     }
     var entries = ReadDetailedLines().Select(line => JsonNode.Parse(line)!).ToArray();
     Check(entries.Any(entry => entry["type"]?.GetValue<string>() == "relayLoginRequest" &&

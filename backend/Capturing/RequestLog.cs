@@ -1,32 +1,21 @@
-using System.Text;
 using System.Text.Json;
+using ReVerse.Traffic;
 
 namespace ReVerse.Capture.Capturing;
 
 public sealed class RequestLog(string directoryPath) : IDisposable
 {
-    private readonly SemaphoreSlim _gate = new(1, 1);
     private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-    public string DirectoryPath { get; } = directoryPath;
+    private readonly JsonFileLog log = new(directoryPath, "requests");
+    public string DirectoryPath => log.DirectoryPath;
+    public Exception? LastError => log.LastError;
+    public event Action<Exception>? Failed { add => log.Failed += value; remove => log.Failed -= value; }
 
-    public async Task WriteAsync(object value)
+    public Task WriteAsync(object value)
     {
-        var line = JsonSerializer.Serialize(value, JsonOptions) + "\n";
-        await _gate.WaitAsync();
-        try
-        {
-            Directory.CreateDirectory(DirectoryPath);
-            var path = Path.Combine(DirectoryPath, $"requests-{DateTime.UtcNow:yyyy-MM-dd}.jsonl");
-            await using var stream = new FileStream(path, FileMode.Append, FileAccess.Write, FileShare.Read,
-                4096, FileOptions.Asynchronous);
-            await stream.WriteAsync(Encoding.UTF8.GetBytes(line));
-            await stream.FlushAsync();
-        }
-        finally
-        {
-            _gate.Release();
-        }
+        log.Write(JsonSerializer.Serialize(value, JsonOptions));
+        return Task.CompletedTask;
     }
 
-    public void Dispose() => _gate.Dispose();
+    public void Dispose() => log.Dispose();
 }
