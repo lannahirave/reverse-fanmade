@@ -39,7 +39,6 @@ may occur.
 - [Host quick start](QUICKSTART-HOST.md)
 - [Player quick start](QUICKSTART-PLAYER.md)
 - [Complete setup guide](SETUP.md)
-- [AWS EC2 deployment](AWS-DEPLOYMENT.md)
 
 ## AI-assisted help
 
