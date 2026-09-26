@@ -1,5 +1,6 @@
 using ReVerse.Relay;
 using ReVerse.Relay.Desktop;
+using System.Text.Json;
 
 static void Check(bool condition, string name)
 {
@@ -34,6 +35,15 @@ Check(!ZeroTierHost.IsDetectedAddress("", "10.205.138.26"), "manual address clea
 
 var folder = Path.Combine(Path.GetTempPath(), "Backend Folder");
 var command = ZeroTierHost.BuildCommand(folder, "10.205.138.26", 4);
+Check(command.Contains("UdpLogging__Enabled=false", StringComparison.Ordinal), "default launch explicitly disables UDP logging");
+Check(ZeroTierHost.BuildCommand(folder, "10.205.138.26", 4, true).Contains("UdpLogging__Enabled=true", StringComparison.Ordinal), "allowed UDP logging reaches backend launch command");
+Check(!JsonSerializer.Deserialize<RelaySettings>("{}")!.BackendUdpLoggingAllowed, "existing settings do not imply UDP logging permission");
+var saved = JsonSerializer.Serialize(new RelaySettings { BackendUdpLoggingAllowed = true });
+Check(JsonSerializer.Deserialize<RelaySettings>(saved)!.BackendUdpLoggingAllowed, "UDP logging permission survives settings serialization");
+foreach (var language in new TranslationService().AvailableLanguages)
+    Check(!string.IsNullOrWhiteSpace(language.UdpLoggingAllowedLabel) &&
+          !language.UdpLoggingAllowedLabel.Contains('?') &&
+          !language.UdpLoggingDescription.Contains('?'), "UDP controls translated: " + language.Code);
 if (OperatingSystem.IsWindows())
 {
     var launcher = Path.Combine(Path.GetFullPath(folder), "ReVerse.Capture.exe");

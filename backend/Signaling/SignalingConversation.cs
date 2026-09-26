@@ -1,3 +1,4 @@
+using ReVerse.Capture.Logging;
 using System.Text;
 
 namespace ReVerse.Capture.Signaling;
@@ -5,7 +6,7 @@ namespace ReVerse.Capture.Signaling;
 
 public sealed class SignalingConversation(SignalingOptions options, SignalingDirectory directory,
     SignalingSnapshot peer, string connection, Action<string> stage,
-    Action<SignalingPayloadAudit>? observePayload = null)
+    Action<SignalingPayloadAudit>? observePayload = null, UdpTrafficLog? udp = null)
 {
     private bool probed;
     private bool configured;
@@ -73,7 +74,7 @@ public sealed class SignalingConversation(SignalingOptions options, SignalingDir
         return [];
     }
 
-    public void Application(byte family, byte operation, byte qualifier, ReadOnlyMemory<byte> body)
+    public void Application(byte family, byte operation, byte qualifier, ReadOnlyMemory<byte> body, string? forwardingId = null)
     {
         if (negativeControlSent) throw new WireFormatException("Application after a deliberately invalid startup reply.");
         if (family == 1 && operation == 1 && qualifier == 1)
@@ -118,20 +119,26 @@ public sealed class SignalingConversation(SignalingOptions options, SignalingDir
         if (!registered) throw new WireFormatException("Payload before registration.");
         if (family == 4 && operation == 1 && qualifier == 0x10)
         {
-            Forward(body);
+            Forward(body, forwardingId);
             return;
         }
         throw new WireFormatException($"Unsupported application contract {family:x2}/{operation:x2}/{qualifier:x2}.");
     }
 
-    private void Forward(ReadOnlyMemory<byte> body)
+    private void Forward(ReadOnlyMemory<byte> body, string? forwardingId)
     {
         var audit = new SignalingPayloadAudit { BodyBytes = body.Length };
-        try { Forward(body, ref audit); }
+        try { Forward(body, ref audit, forwardingId); }
+        catch (WireFormatException error)
+        {
+            udp?.Record("forward_rejected", connection, peer.Session, peer.Account, "backend", forwardingId,
+                new { reason = error.Message, audit.DestinationCount, audit.Outcome });
+            throw;
+        }
         finally { observePayload?.Invoke(audit); }
     }
 
-    private void Forward(ReadOnlyMemory<byte> body, ref SignalingPayloadAudit audit)
+    private void Forward(ReadOnlyMemory<byte> body, ref SignalingPayloadAudit audit, string? forwardingId)
     {
         if (!directory.IsActive(peer.Session) && !directory.AllRegistered(peer.Session, connection))
             throw new WireFormatException("Peer set is not registered.");
@@ -140,6 +147,8 @@ public sealed class SignalingConversation(SignalingOptions options, SignalingDir
         {
             audit = audit with { Outcome = "membership_unavailable_dropped" };
             stage("membership_unavailable_dropped");
+            udp?.Record("forward_dropped", connection, peer.Session, peer.Account, "backend", forwardingId,
+                new { reason = "membership_unavailable" });
             return;
         }
         var input = new WireReader(body, ushort.MaxValue);
@@ -185,6 +194,8 @@ public sealed class SignalingConversation(SignalingOptions options, SignalingDir
         {
             audit = audit with { Outcome = "stale_topology_dropped" };
             stage("stale_topology_payload_dropped");
+            udp?.Record("forward_dropped", connection, peer.Session, peer.Account, "backend", forwardingId,
+                new { reason = "all_destinations_retired", destinations = destinations.ToArray() });
             return;
         }
         if (targets.Any(target => target.Account == current.Account || target.Nonce != destinationNonce))
@@ -194,8 +205,15 @@ public sealed class SignalingConversation(SignalingOptions options, SignalingDir
         output.WriteUInt16(current.Number);
         output.WriteBytes16(block.Span);
         foreach (var target in targets)
-            if (!directory.Queue(peer.Session, target.Account, new(4, 1, 0x10, output.ToArray(), 0x42), connection))
-                throw new WireFormatException("Destination disconnected or its queue is full.");
+        {
+            var accepted = directory.Queue(peer.Session, target.Account,
+                new(4, 1, 0x10, output.ToArray(), 0x42, forwardingId, current.Account), connection);
+            udp?.Record(accepted ? "forward_queued" : "forward_dropped", connection, peer.Session,
+                current.Account, target.Account, forwardingId,
+                new { senderNumber = current.Number, recipientNumber = target.Number, senderNonce, destinationNonce,
+                    reason = accepted ? "recipient_queue_accepted" : "recipient_disconnected_or_queue_full" }, block, "peer");
+            if (!accepted) throw new WireFormatException("Destination disconnected or its queue is full.");
+        }
         audit = audit with { Outcome = "queued" };
         stage("peer_payload_forwarded");
     }

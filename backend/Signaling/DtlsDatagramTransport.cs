@@ -10,6 +10,7 @@ internal sealed class DtlsDatagramTransport(
     Socket socket, IPEndPoint remoteEndPoint, int queueCapacity, int maxDatagramBytes,
     Action<string, IPEndPoint, ReadOnlyMemory<byte>>? datagramLog = null) : DatagramTransport
 {
+    internal IPEndPoint RemoteEndPoint => remoteEndPoint;
     private readonly object gate = new();
     private readonly Queue<byte[]> incoming = new();
     private bool closed;

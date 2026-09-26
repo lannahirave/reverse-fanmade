@@ -9,7 +9,7 @@ public sealed record SignalingMember(string Account, uint Nonce);
 public sealed record SignalingSnapshot(string Session, string Account, ushort Number, uint Nonce,
     ushort Representative, IReadOnlyList<SignalingPeerInfo> Peers);
 public sealed record SignalingPeerInfo(string Account, ushort Number, uint Nonce);
-public sealed record SignalingDelivery(byte Family, byte Operation, byte Qualifier, byte[] Body, byte Descriptor = 0x1c);
+public sealed record SignalingDelivery(byte Family, byte Operation, byte Qualifier, byte[] Body, byte Descriptor = 0x1c, string? ForwardingId = null, string? SenderAccount = null);
 
 
 public sealed class SignalingDirectory(SignalingOptions options)

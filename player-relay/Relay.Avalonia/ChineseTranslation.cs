@@ -42,6 +42,8 @@ public sealed class ChineseTranslation : TranslationBase
     public override string StatusSessionExpired => "会话已过期 — 停止并重新启动服务";
     public override string StatusStartFailed => "无法启动中继";
     public override string RelayPorts => "端口 5080 / 5081";
+    public override string UdpLoggingAllowedLabel => "允许 UDP 日志记录";
+    public override string UdpLoggingDescription => "将玩家流量记录为后端 logs 文件夹中的可读文本和 JSON 文件，每个文件达到 10 MB 后轮换。此设置会保存供以后启动使用。请先停止后端再更改此设置。";
     public override string BackendHostTitle => "后端主机";
     public override string BackendHostDescription => "为你的团队运行共享服务器。";
     public override string BackendFolderLabel => "后端文件夹";

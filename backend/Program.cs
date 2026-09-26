@@ -41,6 +41,9 @@ try
     capture.Validate();
     var steam = builder.Configuration.GetSection("Steam").Get<SteamOptions>() ?? new SteamOptions();
     steam.Validate();
+    var udpLogging = builder.Configuration.GetSection("UdpLogging").Get<UdpLogOptions>() ?? new();
+    udpLogging.Validate();
+    builder.Services.AddSingleton(_ => new UdpTrafficLog(logDirectory, udpLogging));
     builder.Services.AddSingleton(capture);
     builder.Services.AddSingleton(steam);
     builder.Services.AddSingleton(_ => new RequestLog(Path.GetFullPath(capture.LogDirectory, builder.Environment.ContentRootPath)));
@@ -97,7 +100,8 @@ try
     app.Lifetime.ApplicationStarted.Register(() =>
     {
         Log.ForContext("UserFacing", true).Information("Backend ready. Listening on {Addresses:l}", string.Join(", ", app.Urls));
-        Log.ForContext("UserFacing", true).Information("Log files are in {LogDirectory:l}. Files roll at 1 MB.", logDirectory);
+        Log.ForContext("UserFacing", true).Information("Log files are in {LogDirectory:l}. Backend and request files roll at 1 MB.", logDirectory);
+        Log.ForContext("UserFacing", true).Information("UDP conversation logging is {UdpLogging:l}; readable and JSON files roll at 10 MB.", udpLogging.Enabled ? "on" : "off");
         Log.ForContext("UserFacing", true).Information("Full traffic recording is {Recording:l}. Ordinary diagnostic logs are always written.",
             app.Services.GetRequiredService<DetailedTrafficLog>().IsEnabled ? "on" : "off");
     });

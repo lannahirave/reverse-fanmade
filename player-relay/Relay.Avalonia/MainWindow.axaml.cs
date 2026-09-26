@@ -141,6 +141,9 @@ public sealed partial class MainWindow : Window
         StopBackendButton.Content = text.StopBackendButton;
         ToolTip.SetTip(StopBackendButton, text.StopBackendTooltip);
         BackendPortsText.Text = text.BackendPorts;
+        UdpLoggingCheckBox.Content = text.UdpLoggingAllowedLabel;
+        UdpLoggingCheckBox.IsChecked = settings.BackendUdpLoggingAllowed;
+        UdpLoggingDescriptionText.Text = text.UdpLoggingDescription;
 
         SetStatus(relayStatus);
         RenderZeroTierStatus();
@@ -217,6 +220,27 @@ public sealed partial class MainWindow : Window
             settings.DetailedLogsEnabled = previous;
             try { SetDetailedLogsMarker(previous); } catch { }
             ShowError(exception);
+        }
+    }
+
+    private void OnUdpLoggingClicked(object? sender, RoutedEventArgs e)
+    {
+        var previous = settings.BackendUdpLoggingAllowed;
+        try
+        {
+            if (backendHost.IsRunning) return;
+            settings.BackendUdpLoggingAllowed = UdpLoggingCheckBox.IsChecked == true;
+            settings.Save();
+            UpdateHostCommand();
+        }
+        catch (Exception exception)
+        {
+            settings.BackendUdpLoggingAllowed = previous;
+            SetBackendStatus(BackendStatus.Error, exception);
+        }
+        finally
+        {
+            UdpLoggingCheckBox.IsChecked = settings.BackendUdpLoggingAllowed;
         }
     }
 
@@ -510,7 +534,7 @@ public sealed partial class MainWindow : Window
                 return;
             }
             var players = decimal.ToInt32(PlayersEntry.Value ?? 2);
-            BackendCommandEntry.Text = ZeroTierHost.BuildCommand(folder, address, players);
+            BackendCommandEntry.Text = ZeroTierHost.BuildCommand(folder, address, players, settings.BackendUdpLoggingAllowed);
             PlayerBackendUrlEntry.Text = ZeroTierHost.BuildBackendUrl(address);
             CopyBackendUrlButton.IsEnabled = true;
             UpdateStartBackendAvailability();
@@ -645,6 +669,7 @@ public sealed partial class MainWindow : Window
         BrowseBackendButton.IsEnabled = !running;
         ZeroTierAddressEntry.IsEnabled = !running;
         PlayersEntry.IsEnabled = !running;
+        UdpLoggingCheckBox.IsEnabled = !running;
         DetectAddressButton.IsEnabled = !running;
         StartBackendButton.IsEnabled = !running;
         StopBackendButton.IsEnabled = running;

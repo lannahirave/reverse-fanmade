@@ -7,17 +7,6 @@ using Org.BouncyCastle.Tls.Crypto.Impl.BC;
 
 namespace ReVerse.Capture.Signaling;
 
-
-
-
-
-
-
-
-
-
-
-
 public sealed class DtlsUdpHost : IAsyncDisposable
 {
     private readonly object gate = new();
@@ -31,6 +20,8 @@ public sealed class DtlsUdpHost : IAsyncDisposable
     private readonly Action<byte[], DtlsTransport, CancellationToken> connected;
     private readonly Action<string>? stageLog;
     private readonly Action<string, IPEndPoint, ReadOnlyMemory<byte>>? datagramLog;
+    private readonly Action<byte[], DtlsTransport, CancellationToken, IPEndPoint>? connectedEndpoint;
+    private readonly Action<IPEndPoint, string>? peerEvent;
     private readonly CancellationTokenSource stopping = new();
     private readonly Dictionary<IPEndPoint, Peer> peers = new();
     private Socket? socket;
@@ -51,7 +42,9 @@ public sealed class DtlsUdpHost : IAsyncDisposable
         int queueCapacity = 32,
         int maxDatagramBytes = 2048,
         int shutdownTimeoutSeconds = 5,
-        Action<string, IPEndPoint, ReadOnlyMemory<byte>>? datagramLog = null)
+        Action<string, IPEndPoint, ReadOnlyMemory<byte>>? datagramLog = null,
+        Action<byte[], DtlsTransport, CancellationToken, IPEndPoint>? connectedEndpoint = null,
+        Action<IPEndPoint, string>? peerEvent = null)
     {
         ArgumentNullException.ThrowIfNull(bindAddress);
         ArgumentNullException.ThrowIfNull(lookupPsk);
@@ -80,11 +73,12 @@ public sealed class DtlsUdpHost : IAsyncDisposable
         this.connected = connected;
         this.stageLog = stageLog;
         this.datagramLog = datagramLog;
+        this.connectedEndpoint = connectedEndpoint;
+        this.peerEvent = peerEvent;
         this.queueCapacity = queueCapacity;
         this.maxDatagramBytes = maxDatagramBytes;
         shutdownTimeout = TimeSpan.FromSeconds(shutdownTimeoutSeconds);
     }
-
 
     public IPEndPoint? LocalEndPoint
     {
@@ -94,7 +88,6 @@ public sealed class DtlsUdpHost : IAsyncDisposable
     public bool IsRunning { get { lock (gate) return started && !stopRequested && !completion.IsCompleted; } }
     public int ConnectionCount { get { lock (gate) return peers.Count; } }
     public Task Completion { get { lock (gate) return completion; } }
-
 
     public Task StartAsync(CancellationToken cancellationToken = default)
     {
@@ -191,7 +184,7 @@ public sealed class DtlsUdpHost : IAsyncDisposable
 
         var verifier = new DtlsVerifier(new BcTlsCrypto());
         long verifierCreated = Stopwatch.GetTimestamp();
-        byte[] buffer = new byte[maxDatagramBytes + 1];
+        byte[] buffer = new byte[ushort.MaxValue];
         int cookieReplies = 0;
         int admissions = 0;
         long budgetStarted = Stopwatch.GetTimestamp();
@@ -218,24 +211,31 @@ public sealed class DtlsUdpHost : IAsyncDisposable
                 or SocketError.ConnectionReset or SocketError.ConnectionRefused)
             {
 
+                peerEvent?.Invoke((IPEndPoint)remote, error.SocketErrorCode.ToString());
                 continue;
             }
-            if (received < 13 || received > maxDatagramBytes)
-                continue;
-
             var endPoint = (IPEndPoint)remote;
             datagramLog?.Invoke("clientToBackend", endPoint, buffer.AsMemory(0, received).ToArray());
+            if (received < 13 || received > maxDatagramBytes)
+            {
+                peerEvent?.Invoke(endPoint, "datagram_size_rejected");
+                continue;
+            }
             Peer? existing;
             lock (gate) peers.TryGetValue(endPoint, out existing);
             if (existing is not null)
             {
 
-                existing.Transport.TryEnqueue(buffer.AsSpan(0, received));
+                if (!existing.Transport.TryEnqueue(buffer.AsSpan(0, received)))
+                    peerEvent?.Invoke(endPoint, "receive_queue_full_or_closed");
                 continue;
             }
 
             if (ConnectionCount >= maxConnections)
+            {
+                peerEvent?.Invoke(endPoint, "connection_limit_reached");
                 continue;
+            }
             if (Stopwatch.GetElapsedTime(budgetStarted) >= TimeSpan.FromSeconds(1))
             {
                 budgetStarted = Stopwatch.GetTimestamp();
@@ -244,7 +244,10 @@ public sealed class DtlsUdpHost : IAsyncDisposable
             }
 
             if (cookieReplies >= 64 || admissions >= Math.Min(maxConnections, 32))
+            {
+                peerEvent?.Invoke(endPoint, "admission_rate_limit");
                 continue;
+            }
             if (Stopwatch.GetElapsedTime(verifierCreated) >= TimeSpan.FromMinutes(1))
             {
                 verifier = new DtlsVerifier(new BcTlsCrypto());
@@ -255,7 +258,10 @@ public sealed class DtlsUdpHost : IAsyncDisposable
             DtlsRequest? request = verifier.VerifyRequest(EndpointCookieId(endPoint), buffer, 0, received, sender);
             if (sender.Sent) ++cookieReplies;
             if (request is null)
+            {
+                peerEvent?.Invoke(endPoint, sender.Sent ? "cookie_challenge_sent" : "handshake_not_admitted");
                 continue;
+            }
 
             lock (gate)
             {
@@ -276,6 +282,7 @@ public sealed class DtlsUdpHost : IAsyncDisposable
         try
         {
             Log("handshake-started");
+            peerEvent?.Invoke(peer.Transport.RemoteEndPoint, "handshake_started");
             transport = new DtlsServerProtocol().Accept(
                 new DtlsPskServer(identity, handshakeTimeoutMillis), peer.Transport, request);
             lock (gate)
@@ -289,7 +296,8 @@ public sealed class DtlsUdpHost : IAsyncDisposable
             Log("authenticated");
             try
             {
-                connected(authenticatedIdentity, transport, stopping.Token);
+                if (connectedEndpoint is null) connected(authenticatedIdentity, transport, stopping.Token);
+                else connectedEndpoint(authenticatedIdentity, transport, stopping.Token, peer.Transport.RemoteEndPoint);
             }
             catch (OperationCanceledException) when (stopping.IsCancellationRequested)
             {
@@ -312,6 +320,7 @@ public sealed class DtlsUdpHost : IAsyncDisposable
         catch (IOException)
         {
             Log(IsStopping ? "connection-stopped" : "handshake-rejected");
+            peerEvent?.Invoke(peer.Transport.RemoteEndPoint, IsStopping ? "connection_stopped" : "handshake_rejected");
         }
         finally
         {
@@ -322,6 +331,7 @@ public sealed class DtlsUdpHost : IAsyncDisposable
             finally
             {
                 peer.Transport.Close();
+                peerEvent?.Invoke(peer.Transport.RemoteEndPoint, "transport_closed");
             }
         }
     }
@@ -352,7 +362,11 @@ public sealed class DtlsUdpHost : IAsyncDisposable
                         timedOut = true;
                     }
                 }
-                if (timedOut) Log("handshake-timeout");
+                if (timedOut)
+                {
+                    Log("handshake-timeout");
+                    peerEvent?.Invoke(entry.Key, "handshake_timeout");
+                }
             }
         }
     }
@@ -461,6 +475,5 @@ public sealed class DtlsUdpHost : IAsyncDisposable
         }
     }
 }
-
 
 public sealed class DtlsHostException(string message) : Exception(message);

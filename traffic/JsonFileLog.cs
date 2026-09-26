@@ -17,15 +17,15 @@ public sealed class JsonFileLog : IDisposable, ILoggingFailureListener
     public Exception? LastError => Volatile.Read(ref lastError);
     public event Action<Exception>? Failed;
 
-    public JsonFileLog(string directoryPath, string prefix)
+    public JsonFileLog(string directoryPath, string prefix, long fileSizeLimitBytes = FileSizeLimitBytes, string extension = ".jsonl")
     {
         DirectoryPath = Path.GetFullPath(directoryPath);
         logger = new LoggerConfiguration()
             .WriteTo.Fallible(sink => sink.File(
-                Path.Combine(DirectoryPath, prefix + "-.jsonl"),
+                Path.Combine(DirectoryPath, prefix + "-" + extension),
                 outputTemplate: "{Message:lj}{NewLine}",
                 rollingInterval: RollingInterval.Day,
-                fileSizeLimitBytes: FileSizeLimitBytes,
+                fileSizeLimitBytes: fileSizeLimitBytes,
                 rollOnFileSizeLimit: true,
                 retainedFileCountLimit: null,
                 encoding: new UTF8Encoding(false)), this)

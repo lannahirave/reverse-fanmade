@@ -1,3 +1,4 @@
+using ReVerse.Capture.Logging;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
@@ -29,7 +30,7 @@ internal static class NetworkTests
         return ((IPEndPoint)socket.LocalEndPoint!).Port;
     }
 
-    internal static async Task ProviderSmoke(bool peerDiagnostics = false)
+    internal static async Task ProviderSmoke(bool peerDiagnostics = false, bool failedUdpLog = false)
     {
         const string session = "network-room";
         var options = Room.NewOptions();
@@ -41,7 +42,10 @@ internal static class NetworkTests
         var folder = Artifacts();
         using var log = new RequestLog(folder);
         using var detailed = new DetailedTrafficLog(folder);
-        using var provider = new SignalingProvider(options, directory, log, detailed, NullLogger<SignalingProvider>.Instance);
+        var udpFolder = Path.Combine(folder, "udp");
+        if (failedUdpLog) { System.IO.Directory.CreateDirectory(folder); File.WriteAllText(udpFolder, "not a directory"); }
+        using var udp = new UdpTrafficLog(udpFolder, new UdpLogOptions { Enabled = true });
+        using var provider = new SignalingProvider(options, directory, log, detailed, NullLogger<SignalingProvider>.Instance, udp);
         var endpoint = new IPEndPoint(IPAddress.Loopback, options.Port);
         var credentials = new List<Credential>();
         try
@@ -49,6 +53,11 @@ internal static class NetworkTests
             Assert.That(!directory.IsListening, "provider ready before bind");
             await provider.StartAsync(CancellationToken.None);
             Assert.That(directory.IsListening, "StartAsync did not bind before returning");
+            using (var probe = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp))
+            {
+                probe.SendTo(new byte[] { 1, 2, 3 }, endpoint);
+                probe.SendTo(new byte[4096], endpoint);
+            }
             Assert.That(directory.Allocate(session, "bob", [new("bob", 0xaabbccdd), new("alice", 0x01020304)],
                 DateTimeOffset.UtcNow.AddSeconds(30)), "provider allocation");
             var aliceCredential = Credential.From(directory.Descriptor(session, "alice")!);
@@ -62,7 +71,8 @@ internal static class NetworkTests
             using var bob = new ProviderPeer(endpoint, bobCredential);
             alice.Startup();
             bob.Startup();
-            var registration = alice.SendApplication(1, 1, 1, Bytes.Sized(aliceCredential.SecretBytes));
+            var registration = alice.SendApplication(1, 1, 1, Bytes.Sized(aliceCredential.SecretBytes), fragmentBytes: 13);
+            await Task.Delay(650);
             var reply = alice.Application();
             Assert.That(reply is { Family: 1, Operation: 1, Qualifier: 2, Descriptor: 0x1c }, "DTLS registration reply envelope");
             Assert.Bytes([0, 0, .. Bytes.Text(session), 0, 1, 0, 2], reply.Body.Span, "DTLS registration reply layout");
@@ -112,6 +122,8 @@ internal static class NetworkTests
             }
         }
         finally { await provider.StopAsync(CancellationToken.None); }
+        await udp.DisposeAsync();
+        if (!failedUdpLog) UdpLoggingTests.CheckNetwork(udpFolder, credentials);
         Assert.That(!directory.IsListening, "stopped provider advertises listening");
         using (var rebound = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp))
         {
@@ -356,14 +368,25 @@ internal sealed class ProviderPeer : IDisposable
         Assert.That(controls.Count == 0, "negative control sent an extra startup gate");
     }
 
-    internal byte[] SendApplication(byte family, byte operation, byte qualifier, byte[] body, byte descriptor = 0x1c)
+    internal byte[] SendApplication(byte family, byte operation, byte qualifier, byte[] body, byte descriptor = 0x1c, int fragmentBytes = 0)
     {
 
         var bytes = new WireApplication(family, operation, qualifier, ushort.MaxValue, 0xdeadbeef, body).Encode();
         var channel = descriptor >> 4;
         var offset = offsets.GetValueOrDefault(channel);
 
-        var packet = Send(new WireFragment(0x0f, descriptor, offset, bytes));
+        byte[] packet;
+        if (fragmentBytes > 0)
+        {
+            packet = [];
+            for (var position = 0; position < bytes.Length; position += fragmentBytes)
+            {
+                var length = Math.Min(fragmentBytes, bytes.Length - position);
+                packet = Send(new WireFragment(position + length == bytes.Length ? (byte)0x0f : (byte)0x0d,
+                    descriptor, offset + (ulong)position, bytes.AsMemory(position, length)));
+            }
+        }
+        else packet = Send(new WireFragment(0x0f, descriptor, offset, bytes));
         offsets[channel] = offset + (ulong)bytes.Length;
         return packet;
     }

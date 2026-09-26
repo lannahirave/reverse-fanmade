@@ -28,4 +28,5 @@
     <Content Update="global.json" CopyToPublishDirectory="Never" />
     <None Update="Start-Backend.cmd;Start-FieldTest.ps1" CopyToPublishDirectory="Never" />
   </ItemGroup>
+  <ItemGroup><InternalsVisibleTo Include="Provider.Tests" /></ItemGroup>
 </Project>

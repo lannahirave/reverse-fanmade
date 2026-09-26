@@ -155,7 +155,7 @@ public static partial class ZeroTierHost
         return null;
     }
 
-    public static string BuildCommand(string backendFolder, string address, int players)
+    public static string BuildCommand(string backendFolder, string address, int players, bool udpLoggingAllowed = false)
     {
         var folder = Path.GetFullPath(backendFolder.Trim().Trim('"'));
         var ip = ValidateAddress(address);
@@ -170,6 +170,7 @@ public static partial class ZeroTierHost
             "Matchmaking__IgnorePlayerAttributes=true",
             $"ASPNETCORE_URLS={BuildBackendUrl(ip)}",
             "Signaling__Enabled=true",
+            $"UdpLogging__Enabled={udpLoggingAllowed.ToString().ToLowerInvariant()}",
             "Signaling__PeerDiagnostics=true",
             "Signaling__BindAddress=0.0.0.0",
             $"Signaling__PublicHost={ip}",

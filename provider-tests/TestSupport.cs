@@ -1,3 +1,4 @@
+using ReVerse.Capture.Logging;
 using System.Buffers.Binary;
 using System.Text;
 using System.Text.Json.Nodes;
@@ -87,7 +88,7 @@ internal sealed class Room : IDisposable
         ExperimentalReplies = true, Reply19 = 1, Reply21 = 1, RegistrationFieldBIsPeerNumber = true
     };
 
-    internal Room(SignalingOptions? options = null, IReadOnlyList<SignalingMember>? members = null)
+    internal Room(SignalingOptions? options = null, IReadOnlyList<SignalingMember>? members = null, UdpTrafficLog? udp = null)
     {
         Options = options ?? NewOptions();
         Options.Validate();
@@ -101,7 +102,7 @@ internal sealed class Room : IDisposable
             Credentials.Add(member.Account, credential);
             var snapshot = Assert.NotNull(Directory.Attach(credential.IdentityBytes, Connection(member.Account)), "fixture attach");
             Peers.Add(member.Account, snapshot);
-            Conversations.Add(member.Account, new(Options, Directory, snapshot, Connection(member.Account), Stages.Add, PayloadAudits.Add));
+            Conversations.Add(member.Account, new(Options, Directory, snapshot, Connection(member.Account), Stages.Add, PayloadAudits.Add, udp));
         }
     }
 

@@ -42,6 +42,8 @@ public sealed class UkrainianTranslation : TranslationBase
     public override string StatusSessionExpired => "Сеанс завершено — зупиніть і запустіть службу знову";
     public override string StatusStartFailed => "Не вдалося запустити ретранслятор";
     public override string RelayPorts => "ПОРТИ 5080 / 5081";
+    public override string UdpLoggingAllowedLabel => "Дозволити журналювання UDP";
+    public override string UdpLoggingDescription => "Записує трафік гравців у текстові та JSON-файли в папці logs бекенду; кожен файл змінюється після 10 МБ. Вибір зберігається для наступних запусків. Щоб змінити його, зупиніть бекенд.";
     public override string BackendHostTitle => "Хост бекенду";
     public override string BackendHostDescription => "Запустіть спільний сервер для своєї групи.";
     public override string BackendFolderLabel => "ПАПКА БЕКЕНДУ";

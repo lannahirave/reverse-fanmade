@@ -38,6 +38,8 @@ public sealed class EnglishTranslation : TranslationBase
     public override string StatusSessionExpired => "Session expired — stop and start service";
     public override string StatusStartFailed => "Could not start relay";
     public override string RelayPorts => "PORTS 5080 / 5081";
+    public override string UdpLoggingAllowedLabel => "Allow UDP logging";
+    public override string UdpLoggingDescription => "Records player traffic in readable and JSON files in the backend logs folder; each file rolls at 10 MB. Saved for future starts. Stop the backend to change this setting.";
     public override string BackendHostTitle => "Backend host";
     public override string BackendHostDescription => "Run the shared server for your group.";
     public override string BackendFolderLabel => "BACKEND FOLDER";
