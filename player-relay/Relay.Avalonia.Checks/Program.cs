@@ -41,8 +41,10 @@ Check(!JsonSerializer.Deserialize<RelaySettings>("{}")!.BackendUdpLoggingAllowed
 var saved = JsonSerializer.Serialize(new RelaySettings { BackendUdpLoggingAllowed = true });
 Check(JsonSerializer.Deserialize<RelaySettings>(saved)!.BackendUdpLoggingAllowed, "UDP logging permission survives settings serialization");
 foreach (var language in new TranslationService().AvailableLanguages)
-    Check(!string.IsNullOrWhiteSpace(language.UdpLoggingAllowedLabel) &&
-          !language.UdpLoggingAllowedLabel.Contains('?') &&
+    Check(!string.IsNullOrWhiteSpace(language.UdpLoggingOnButton) &&
+          !string.IsNullOrWhiteSpace(language.UdpLoggingOffButton) &&
+          !language.UdpLoggingOnButton.Contains('?') &&
+          !language.UdpLoggingOffButton.Contains('?') &&
           !language.UdpLoggingDescription.Contains('?'), "UDP controls translated: " + language.Code);
 if (OperatingSystem.IsWindows())
 {

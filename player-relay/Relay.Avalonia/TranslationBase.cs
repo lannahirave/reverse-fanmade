@@ -45,7 +45,8 @@ public abstract class TranslationBase : ITranslation
     public abstract string StatusSessionExpired { get; }
     public abstract string StatusStartFailed { get; }
     public abstract string RelayPorts { get; }
-    public abstract string UdpLoggingAllowedLabel { get; }
+    public abstract string UdpLoggingOnButton { get; }
+    public abstract string UdpLoggingOffButton { get; }
     public abstract string UdpLoggingDescription { get; }
     public abstract string BackendHostTitle { get; }
     public abstract string BackendHostDescription { get; }

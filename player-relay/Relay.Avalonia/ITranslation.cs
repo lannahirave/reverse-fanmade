@@ -44,7 +44,8 @@ public interface ITranslation
     string StatusSessionExpired { get; }
     string StatusStartFailed { get; }
     string RelayPorts { get; }
-    string UdpLoggingAllowedLabel { get; }
+    string UdpLoggingOnButton { get; }
+    string UdpLoggingOffButton { get; }
     string UdpLoggingDescription { get; }
     string BackendHostTitle { get; }
     string BackendHostDescription { get; }

@@ -42,7 +42,8 @@ public sealed class SpanishTranslation : TranslationBase
     public override string StatusSessionExpired => "Sesión caducada — detén y vuelve a iniciar el servicio";
     public override string StatusStartFailed => "No se pudo iniciar el relay";
     public override string RelayPorts => "PUERTOS 5080 / 5081";
-    public override string UdpLoggingAllowedLabel => "Permitir registros UDP";
+    public override string UdpLoggingOnButton => "REGISTROS UDP: ACTIVADOS";
+    public override string UdpLoggingOffButton => "REGISTROS UDP: DESACTIVADOS";
     public override string UdpLoggingDescription => "Guarda el tráfico de jugadores en archivos legibles y JSON en la carpeta logs del backend; cada archivo rota a los 10 MB. Se guarda para futuros inicios. Detén el backend para cambiar esta opción.";
     public override string BackendHostTitle => "Anfitrión del backend";
     public override string BackendHostDescription => "Ejecuta el servidor compartido para tu grupo.";

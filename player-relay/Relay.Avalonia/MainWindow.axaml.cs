@@ -141,8 +141,7 @@ public sealed partial class MainWindow : Window
         StopBackendButton.Content = text.StopBackendButton;
         ToolTip.SetTip(StopBackendButton, text.StopBackendTooltip);
         BackendPortsText.Text = text.BackendPorts;
-        UdpLoggingCheckBox.Content = text.UdpLoggingAllowedLabel;
-        UdpLoggingCheckBox.IsChecked = settings.BackendUdpLoggingAllowed;
+        RenderUdpLogging();
         UdpLoggingDescriptionText.Text = text.UdpLoggingDescription;
 
         SetStatus(relayStatus);
@@ -229,7 +228,7 @@ public sealed partial class MainWindow : Window
         try
         {
             if (backendHost.IsRunning) return;
-            settings.BackendUdpLoggingAllowed = UdpLoggingCheckBox.IsChecked == true;
+            settings.BackendUdpLoggingAllowed = !previous;
             settings.Save();
             UpdateHostCommand();
         }
@@ -240,8 +239,14 @@ public sealed partial class MainWindow : Window
         }
         finally
         {
-            UdpLoggingCheckBox.IsChecked = settings.BackendUdpLoggingAllowed;
+            RenderUdpLogging();
         }
+    }
+
+    private void RenderUdpLogging()
+    {
+        var text = localization.Current;
+        UdpLoggingButton.Content = settings.BackendUdpLoggingAllowed ? text.UdpLoggingOnButton : text.UdpLoggingOffButton;
     }
 
     private void RenderDetailedLogs()
@@ -669,7 +674,7 @@ public sealed partial class MainWindow : Window
         BrowseBackendButton.IsEnabled = !running;
         ZeroTierAddressEntry.IsEnabled = !running;
         PlayersEntry.IsEnabled = !running;
-        UdpLoggingCheckBox.IsEnabled = !running;
+        UdpLoggingButton.IsEnabled = !running;
         DetectAddressButton.IsEnabled = !running;
         StartBackendButton.IsEnabled = !running;
         StopBackendButton.IsEnabled = running;
