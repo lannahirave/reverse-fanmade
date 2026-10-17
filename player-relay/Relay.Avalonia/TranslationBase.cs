@@ -103,6 +103,10 @@ public abstract class TranslationBase : ITranslation
     public abstract string ErrorBackendCommandRequired { get; }
     public abstract string ErrorBackendAlreadyRunning { get; }
     public abstract string ErrorBackendProcessCouldNotStart { get; }
+    public abstract string PortsInUseFormat { get; }
+    public abstract string ClosePortOwnersButtonFormat { get; }
+    public abstract string ErrorPortOwnerCouldNotCloseFormat { get; }
+    public abstract string AlreadyRunningMessage { get; }
     public abstract string ErrorBackendExecutablePermission { get; }
     public abstract string ErrorBackendUrlRequired { get; }
 
@@ -149,6 +153,7 @@ public abstract class TranslationBase : ITranslation
         DesktopErrorCode.BackendProcessCouldNotStart => ErrorBackendProcessCouldNotStart,
         DesktopErrorCode.BackendExecutablePermission => ErrorBackendExecutablePermission,
         DesktopErrorCode.BackendUrlRequired => ErrorBackendUrlRequired,
+        DesktopErrorCode.PortOwnerCouldNotClose => string.Format(CultureInfo.InvariantCulture, ErrorPortOwnerCouldNotCloseFormat, entryName ?? ""),
         _ => code.ToString()
     };
 
@@ -157,4 +162,10 @@ public abstract class TranslationBase : ITranslation
 
     public string GetRelayStartErrorText(string details) =>
         string.IsNullOrWhiteSpace(details) ? RelayStartErrorSuffix : $"{details} {RelayStartErrorSuffix}";
+
+    public string GetPortsInUseText(IEnumerable<string> processNames) =>
+        string.Format(CultureInfo.InvariantCulture, PortsInUseFormat, string.Join(", ", processNames));
+
+    public string GetClosePortOwnersButtonText(IEnumerable<string> processNames) =>
+        string.Format(CultureInfo.InvariantCulture, ClosePortOwnersButtonFormat, string.Join(", ", processNames).ToUpperInvariant());
 }

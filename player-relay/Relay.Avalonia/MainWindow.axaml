@@ -114,6 +114,7 @@
             <TextBlock x:Name="DetailedLogsPathText" Classes="helper" TextWrapping="Wrap" IsVisible="False" />
           </StackPanel>
           <TextBlock x:Name="ErrorText" IsVisible="False" Margin="0,10,0,0" Foreground="#E05A62" FontFamily="Consolas,DejaVu Sans Mono" FontSize="10" TextWrapping="Wrap" />
+          <Button x:Name="ClosePortOwnersButton" Classes="secondary" Height="36" Margin="0,8,0,0" HorizontalAlignment="Stretch" IsVisible="False" Click="OnClosePortOwnersClicked" />
         </StackPanel>
       </ScrollViewer>
 

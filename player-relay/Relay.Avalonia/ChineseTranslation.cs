@@ -100,6 +100,10 @@ public sealed class ChineseTranslation : TranslationBase
     public override string ErrorBackendCommandRequired => "请输入后端命令。";
     public override string ErrorBackendAlreadyRunning => "后端已在运行。";
     public override string ErrorBackendProcessCouldNotStart => "无法启动后端进程。";
+    public override string PortsInUseFormat => "端口 5080 和 5081 被以下程序占用：{0}。";
+    public override string ClosePortOwnersButtonFormat => "关闭 {0} 并启动中继";
+    public override string ErrorPortOwnerCouldNotCloseFormat => "无法关闭 {0}。请在任务管理器中将其关闭，然后重新启动中继。";
+    public override string AlreadyRunningMessage => "ReVerse Relay 已在运行。是否关闭正在运行的副本并打开新的副本？";
     public override string ErrorBackendExecutablePermission => "无法使 ReVerse.Capture 可执行。请在后端文件夹中运行 chmod +x ReVerse.Capture。";
     public override string ErrorBackendUrlRequired => "启动后端前，请检测有效的 ZeroTier 地址。";
 }

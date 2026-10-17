@@ -1,3 +1,4 @@
+using System.Globalization;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Input.Platform;
@@ -12,6 +13,8 @@ namespace ReVerse.Relay.Desktop;
 public sealed partial class MainWindow : Window
 {
     private const string LaunchOptions = "/Rebe/HjmUriStr:http://127.0.0.1:5080";
+    private const int RelayHttpPort = 5080;
+    private const int RelayHttpsPort = 5081;
     private const double CompactWidth = 560;
     private const double ExpandedWidth = 1120;
     private static bool SupportsBackendHosting => OperatingSystem.IsWindows() || OperatingSystem.IsLinux();
@@ -25,6 +28,7 @@ public sealed partial class MainWindow : Window
     private RelayService? service;
     private string? detectedZeroTierAddress;
     private Exception? currentError;
+    private IReadOnlyList<PortOwner> portOwners = [];
     private Exception? zeroTierError;
     private Exception? backendStatusError;
     private RelayStatus relayStatus = RelayStatus.Stopped;
@@ -321,9 +325,10 @@ public sealed partial class MainWindow : Window
         }
         catch (Exception exception)
         {
+            var owners = FindRelayPortOwners();
             await StopAsync();
             SetStatus(RelayStatus.StartFailed);
-            ShowError(exception, appendRelayStartAdvice: true);
+            ShowError(exception, appendRelayStartAdvice: true, owners);
         }
         finally
         {
@@ -367,9 +372,10 @@ public sealed partial class MainWindow : Window
         _ => WorkingBrush
     };
 
-    private void ShowError(Exception exception, bool appendRelayStartAdvice = false)
+    private void ShowError(Exception exception, bool appendRelayStartAdvice = false, IReadOnlyList<PortOwner>? owners = null)
     {
         currentError = exception;
+        portOwners = owners ?? [];
         errorIncludesRelayStartAdvice = appendRelayStartAdvice;
         RenderError();
     }
@@ -380,11 +386,68 @@ public sealed partial class MainWindow : Window
     {
         if (currentError is null)
             return;
+        var text = localization.Current;
         var message = GetErrorText(currentError);
-        ErrorText.Text = errorIncludesRelayStartAdvice
-            ? localization.Current.GetRelayStartErrorText(message)
-            : message;
+        if (errorIncludesRelayStartAdvice)
+            message = text.GetRelayStartErrorText(message);
+        var ownerNames = portOwners
+            .Select(owner => owner.ProcessName.Length > 0 ? owner.ProcessName : owner.ProcessId.ToString(CultureInfo.InvariantCulture))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+        if (ownerNames.Length > 0)
+            message += "\n" + text.GetPortsInUseText(ownerNames);
+        ErrorText.Text = message;
         ErrorText.IsVisible = true;
+        ClosePortOwnersButton.Content = text.GetClosePortOwnersButtonText(ownerNames);
+        ClosePortOwnersButton.IsVisible = ownerNames.Length > 0;
+    }
+
+    private static IReadOnlyList<PortOwner> FindRelayPortOwners()
+    {
+        try
+        {
+            return PortOwners.FindListeners(RelayHttpPort, RelayHttpsPort);
+        }
+        catch (Exception)
+        {
+            return [];
+        }
+    }
+
+    private async void OnClosePortOwnersClicked(object? sender, RoutedEventArgs e)
+    {
+        if (busy || service is not null)
+            return;
+        var owners = portOwners;
+        ClosePortOwnersButton.IsEnabled = false;
+        try
+        {
+            var current = FindRelayPortOwners();
+            foreach (var owner in owners.Where(current.Contains))
+            {
+                bool closed;
+                try
+                {
+                    closed = await PortOwners.CloseAsync(owner, TimeSpan.FromSeconds(5));
+                }
+                catch (Exception exception)
+                {
+                    throw new DesktopException(DesktopErrorCode.PortOwnerCouldNotClose, entryName: owner.ProcessName, innerException: exception);
+                }
+                if (!closed)
+                    throw new DesktopException(DesktopErrorCode.PortOwnerCouldNotClose, entryName: owner.ProcessName);
+            }
+        }
+        catch (DesktopException exception)
+        {
+            ShowError(exception, owners: FindRelayPortOwners());
+            return;
+        }
+        finally
+        {
+            ClosePortOwnersButton.IsEnabled = true;
+        }
+        await ToggleAsync();
     }
 
     private string GetErrorText(Exception exception) => exception switch
@@ -398,6 +461,8 @@ public sealed partial class MainWindow : Window
     private void HideError()
     {
         currentError = null;
+        portOwners = [];
+        ClosePortOwnersButton.IsVisible = false;
         errorIncludesRelayStartAdvice = false;
         ErrorText.Text = "";
         ErrorText.IsVisible = false;

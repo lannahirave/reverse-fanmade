@@ -96,6 +96,10 @@ public sealed class EnglishTranslation : TranslationBase
     public override string ErrorBackendCommandRequired => "Enter a backend command.";
     public override string ErrorBackendAlreadyRunning => "The backend is already running.";
     public override string ErrorBackendProcessCouldNotStart => "The backend process could not be started.";
+    public override string PortsInUseFormat => "Ports 5080 and 5081 are in use by: {0}.";
+    public override string ClosePortOwnersButtonFormat => "CLOSE {0} AND START RELAY";
+    public override string ErrorPortOwnerCouldNotCloseFormat => "{0} could not be closed. Close it in Task Manager, then start the relay again.";
+    public override string AlreadyRunningMessage => "ReVerse Relay is already running. Close the running copy and open a new one?";
     public override string ErrorBackendExecutablePermission => "ReVerse.Capture could not be made executable. Run chmod +x ReVerse.Capture in the backend folder.";
     public override string ErrorBackendUrlRequired => "Detect a valid ZeroTier address before starting the backend.";
 }

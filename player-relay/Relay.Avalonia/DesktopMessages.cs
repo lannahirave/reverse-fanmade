@@ -14,7 +14,8 @@ public enum DesktopErrorCode
     BackendAlreadyRunning,
     BackendProcessCouldNotStart,
     BackendExecutablePermission,
-    BackendUrlRequired
+    BackendUrlRequired,
+    PortOwnerCouldNotClose
 }
 
 public sealed class DesktopException : Exception

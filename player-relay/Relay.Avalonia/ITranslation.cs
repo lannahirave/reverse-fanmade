@@ -102,6 +102,10 @@ public interface ITranslation
     string ErrorBackendCommandRequired { get; }
     string ErrorBackendAlreadyRunning { get; }
     string ErrorBackendProcessCouldNotStart { get; }
+    string PortsInUseFormat { get; }
+    string ClosePortOwnersButtonFormat { get; }
+    string ErrorPortOwnerCouldNotCloseFormat { get; }
+    string AlreadyRunningMessage { get; }
     string ErrorBackendExecutablePermission { get; }
     string ErrorBackendUrlRequired { get; }
     string GetRelayStatusText(RelayStatus status);
@@ -109,4 +113,6 @@ public interface ITranslation
     string GetDesktopErrorText(DesktopErrorCode code, string? detail, string? entryName);
     string GetBackendFolderMissingText(string entryName);
     string GetRelayStartErrorText(string details);
+    string GetPortsInUseText(IEnumerable<string> processNames);
+    string GetClosePortOwnersButtonText(IEnumerable<string> processNames);
 }

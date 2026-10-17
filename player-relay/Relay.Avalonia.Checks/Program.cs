@@ -1,6 +1,17 @@
 using ReVerse.Relay;
 using ReVerse.Relay.Desktop;
+using System.Diagnostics;
+using System.Net;
+using System.Net.Sockets;
 using System.Text.Json;
+
+if (args.Length == 2 && args[0] == "--listen")
+{
+    var held = new TcpListener(IPAddress.Loopback, int.Parse(args[1]));
+    held.Start();
+    Console.WriteLine("LISTENING");
+    await Task.Delay(Timeout.Infinite);
+}
 
 static void Check(bool condition, string name)
 {
@@ -80,6 +91,38 @@ try
 catch (ArgumentOutOfRangeException)
 {
     Check(true, "match size upper bound enforced");
+}
+
+if (OperatingSystem.IsWindows())
+{
+    var probe = new TcpListener(IPAddress.Loopback, 0);
+    probe.Start();
+    var port = ((IPEndPoint)probe.LocalEndpoint).Port;
+    probe.Stop();
+    var holderStart = new ProcessStartInfo(Environment.ProcessPath!) { RedirectStandardOutput = true, UseShellExecute = false };
+    if (Path.GetFileNameWithoutExtension(Environment.ProcessPath!).Equals("dotnet", StringComparison.OrdinalIgnoreCase))
+        holderStart.ArgumentList.Add(System.Reflection.Assembly.GetEntryAssembly()!.Location);
+    holderStart.ArgumentList.Add("--listen");
+    holderStart.ArgumentList.Add(port.ToString());
+    using var holder = Process.Start(holderStart)!;
+    try
+    {
+        Check(holder.StandardOutput.ReadLine() == "LISTENING", "port holder started");
+        var owners = PortOwners.FindListeners(port);
+        Check(owners.Count == 1 && owners[0].ProcessId == holder.Id, "port owner process found");
+        Check(PortOwners.FindListeners(port).All(owner => owner.ProcessId != Environment.ProcessId), "own process is never listed as port owner");
+        Check(await PortOwners.CloseAsync(owners[0], TimeSpan.FromSeconds(5)), "port owner closed");
+        Check(PortOwners.FindListeners(port).Count == 0, "port released after closing owner");
+        var reuse = new TcpListener(IPAddress.Loopback, port);
+        reuse.Start();
+        reuse.Stop();
+        Check(true, "port can be bound after closing owner");
+    }
+    finally
+    {
+        if (!holder.HasExited)
+            holder.Kill();
+    }
 }
 
 if (args.Contains("--live", StringComparer.OrdinalIgnoreCase))

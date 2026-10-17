@@ -100,6 +100,10 @@ public sealed class UkrainianTranslation : TranslationBase
     public override string ErrorBackendCommandRequired => "Введіть команду бекенду.";
     public override string ErrorBackendAlreadyRunning => "Бекенд уже працює.";
     public override string ErrorBackendProcessCouldNotStart => "Не вдалося запустити процес бекенду.";
+    public override string PortsInUseFormat => "Порти 5080 і 5081 зайняті: {0}.";
+    public override string ClosePortOwnersButtonFormat => "ЗАКРИТИ {0} І ЗАПУСТИТИ";
+    public override string ErrorPortOwnerCouldNotCloseFormat => "Не вдалося закрити {0}. Закрийте його в диспетчері завдань і знову запустіть ретранслятор.";
+    public override string AlreadyRunningMessage => "ReVerse Relay вже запущено. Закрити запущену копію й відкрити нову?";
     public override string ErrorBackendExecutablePermission => "Не вдалося зробити ReVerse.Capture виконуваним. Виконайте chmod +x ReVerse.Capture у папці бекенду.";
     public override string ErrorBackendUrlRequired => "Виявіть дійсну адресу ZeroTier перед запуском бекенду.";
 }
