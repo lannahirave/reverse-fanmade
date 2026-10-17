@@ -60,7 +60,9 @@ public sealed class UkrainianTranslation : TranslationBase
     public override string DetectButton => "ВИЯВИТИ";
     public override string DetectAddressTooltip => "Виявити активну IPv4-адресу ZeroTier.";
     public override string PlayersLabel => "ГРАВЦІ";
-    public override string PlayersTooltip => "Точна кількість гравців, потрібна до початку пошуку матчу, — від 2 до 10.";
+    public override string PlayersTooltip => "Розмір матчу — від 2 до 10. Повна група починає одразу.";
+    public override string FillWaitLabel => "ЧЕКАТИ (С)";
+    public override string FillWaitTooltip => "Якщо шукає менше гравців, ніж указано в полі ГРАВЦІ, матч почнеться з усіма наявними (щонайменше 2), коли протягом цієї кількості секунд ніхто не приєднається до пошуку й не вийде з нього. 0 — завжди чекати повну кількість гравців.";
     public override string PlayerConnectionUrlLabel => "URL ПІДКЛЮЧЕННЯ ГРАВЦЯ";
     public override string PlayerConnectionUrlPlaceholder => "Виявіть ZeroTier, щоб створити URL підключення";
     public override string CopyPlayerUrlTooltip => "Скопіювати URL підключення гравця, щоб поділитися ним з гравцями.";
@@ -96,6 +98,7 @@ public sealed class UkrainianTranslation : TranslationBase
     public override string ErrorIpconfigFailedFormat => "Помилка ipconfig: {0}";
     public override string ErrorNoZeroTierAddress => "Активну IPv4-адресу ZeroTier не знайдено. Підключіть ZeroTier або введіть адресу вручну.";
     public override string ErrorInvalidPlayerCount => "Кількість гравців має бути від 2 до 10.";
+    public override string ErrorInvalidFillWait => "Очікування має бути від 0 до 100 секунд.";
     public override string ErrorInvalidZeroTierAddress => "Введіть дійсну IPv4-адресу ZeroTier.";
     public override string ErrorBackendFolderDoesNotExist => "Вибраної папки бекенду не існує.";
     public override string ErrorBackendExecutableMissingFormat => "У вибраній папці бекенду не знайдено {0}.";

@@ -79,8 +79,12 @@ The exact firewall command depends on the distribution.
 3. Click **Host backend** in the upper-right corner to expand the window.
 4. Click **Browse** and select the folder containing `ReVerse.Capture.exe`.
 5. Click **Detect** and verify the ZeroTier IPv4 address.
-6. Set **Players** to the intended group size, from 2 through 10. The generated
-   command is available under **Advanced command** when troubleshooting.
+6. Set **Players** to the intended group size, from 2 through 10.
+   **Fill wait** (default 15 seconds) lets a smaller group of at least 2 start
+   once nobody has joined or left the search for that many seconds; set it to
+   0 to always wait for the full count.
+   The generated command is available under **Advanced command** when
+   troubleshooting.
 7. Click **Start backend**. A separate command window opens, and the app fills
    **Backend server** in the host's relay section automatically.
 8. Use **Stop backend** in the app to close the backend process when finished.
@@ -132,8 +136,11 @@ to the managed address fails, set `ASPNETCORE_URLS` to
 3. Click **Host backend** to expand the window, then click **Browse** and select
    the folder containing `ReVerse.Capture`.
 4. Click **Detect** and verify the ZeroTier IPv4 address.
-5. Set **Players** to the intended group size, from 2 through 10. The generated
-   command is available under **Advanced command**.
+5. Set **Players** to the intended group size, from 2 through 10.
+   **Fill wait** (default 15 seconds) lets a smaller group of at least 2 start
+   once nobody has joined or left the search for that many seconds; set it to
+   0 to always wait for the full count.
+   The generated command is available under **Advanced command**.
 6. Click **Start backend**. The app makes `ReVerse.Capture` executable when
    necessary, starts the backend process, and fills the
    local **Backend server** field with the generated Player connection URL.
@@ -265,7 +272,7 @@ player's backend address.
 
 Confirm that every relay is running, every game uses the local launch option,
 all players use the same Player connection URL, and the backend **Players** value matches
-the intended group size. After a backend restart, stop and restart the relays
+the intended group size, or that **Fill wait** is above 0 so a smaller group can start. After a backend restart, stop and restart the relays
 and games before searching again so stale sessions are not reused.
 
 ### Where to look for backend evidence

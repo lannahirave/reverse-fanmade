@@ -63,6 +63,8 @@ public interface ITranslation
     string DetectAddressTooltip { get; }
     string PlayersLabel { get; }
     string PlayersTooltip { get; }
+    string FillWaitLabel { get; }
+    string FillWaitTooltip { get; }
     string PlayerConnectionUrlLabel { get; }
     string PlayerConnectionUrlPlaceholder { get; }
     string CopyPlayerUrlTooltip { get; }
@@ -98,6 +100,7 @@ public interface ITranslation
     string ErrorIpconfigFailedFormat { get; }
     string ErrorNoZeroTierAddress { get; }
     string ErrorInvalidPlayerCount { get; }
+    string ErrorInvalidFillWait { get; }
     string ErrorInvalidZeroTierAddress { get; }
     string ErrorBackendFolderDoesNotExist { get; }
     string ErrorBackendExecutableMissingFormat { get; }

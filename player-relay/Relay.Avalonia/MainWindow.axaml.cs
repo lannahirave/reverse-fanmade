@@ -50,6 +50,7 @@ public sealed partial class MainWindow : Window
         SecretEntry.Text = CreateSessionSecret();
         LaunchOptionsEntry.Text = LaunchOptions;
         PlayersEntry.Value = 2;
+        FillWaitEntry.Value = 15;
         Closed += (_, _) => StopForShutdown();
         LoadSettings();
         HostToggleButton.IsVisible = SupportsBackendHosting;
@@ -137,6 +138,8 @@ public sealed partial class MainWindow : Window
         ToolTip.SetTip(DetectAddressButton, text.DetectAddressTooltip);
         PlayersLabelText.Text = text.PlayersLabel;
         ToolTip.SetTip(PlayersHelp, text.PlayersTooltip);
+        FillWaitLabelText.Text = text.FillWaitLabel;
+        ToolTip.SetTip(FillWaitHelp, text.FillWaitTooltip);
         PlayerConnectionUrlLabelText.Text = text.PlayerConnectionUrlLabel;
         PlayerBackendUrlEntry.PlaceholderText = text.PlayerConnectionUrlPlaceholder;
         CopyBackendUrlButton.Content = backendUrlCopied ? text.CopiedButton : text.CopyButton;
@@ -209,6 +212,7 @@ public sealed partial class MainWindow : Window
             BackendEntry.Text = settings.BackendAddress;
             HostFolderEntry.Text = settings.BackendFolder;
             PlayersEntry.Value = Math.Clamp(settings.BackendPlayers, 2, 10);
+            FillWaitEntry.Value = Math.Clamp(settings.BackendFillWaitSeconds, 0, ZeroTierHost.MaxFillWaitSeconds);
         }
         catch (Exception exception)
         {
@@ -622,7 +626,8 @@ public sealed partial class MainWindow : Window
                 return;
             }
             var players = decimal.ToInt32(PlayersEntry.Value ?? 2);
-            BackendCommandEntry.Text = ZeroTierHost.BuildCommand(folder, address, players, settings.BackendUdpLoggingAllowed);
+            var fillWait = decimal.ToInt32(FillWaitEntry.Value ?? 0);
+            BackendCommandEntry.Text = ZeroTierHost.BuildCommand(folder, address, players, settings.BackendUdpLoggingAllowed, fillWait);
             PlayerBackendUrlEntry.Text = ZeroTierHost.BuildBackendUrl(address);
             CopyBackendUrlButton.IsEnabled = true;
             UpdateStartBackendAvailability();
@@ -688,6 +693,7 @@ public sealed partial class MainWindow : Window
             settings.BackendFolder = folder;
             settings.BackendAddress = backendUrl;
             settings.BackendPlayers = decimal.ToInt32(PlayersEntry.Value ?? 2);
+            settings.BackendFillWaitSeconds = decimal.ToInt32(FillWaitEntry.Value ?? 0);
             settings.Save();
             SetDetailedLogsMarker(settings.DetailedLogsEnabled);
             backendHost.Start(folder, command);
@@ -757,6 +763,7 @@ public sealed partial class MainWindow : Window
         BrowseBackendButton.IsEnabled = !running;
         ZeroTierAddressEntry.IsEnabled = !running;
         PlayersEntry.IsEnabled = !running;
+        FillWaitEntry.IsEnabled = !running;
         UdpLoggingButton.IsEnabled = !running;
         DetectAddressButton.IsEnabled = !running;
         StartBackendButton.IsEnabled = !running;

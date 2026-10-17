@@ -64,6 +64,8 @@ public abstract class TranslationBase : ITranslation
     public abstract string DetectAddressTooltip { get; }
     public abstract string PlayersLabel { get; }
     public abstract string PlayersTooltip { get; }
+    public abstract string FillWaitLabel { get; }
+    public abstract string FillWaitTooltip { get; }
     public abstract string PlayerConnectionUrlLabel { get; }
     public abstract string PlayerConnectionUrlPlaceholder { get; }
     public abstract string CopyPlayerUrlTooltip { get; }
@@ -99,6 +101,7 @@ public abstract class TranslationBase : ITranslation
     public abstract string ErrorIpconfigFailedFormat { get; }
     public abstract string ErrorNoZeroTierAddress { get; }
     public abstract string ErrorInvalidPlayerCount { get; }
+    public abstract string ErrorInvalidFillWait { get; }
     public abstract string ErrorInvalidZeroTierAddress { get; }
     public abstract string ErrorBackendFolderDoesNotExist { get; }
     public abstract string ErrorBackendExecutableMissingFormat { get; }
@@ -147,6 +150,7 @@ public abstract class TranslationBase : ITranslation
             : string.Format(CultureInfo.InvariantCulture, ErrorIpconfigFailedFormat, detail),
         DesktopErrorCode.NoZeroTierAddress => ErrorNoZeroTierAddress,
         DesktopErrorCode.InvalidPlayerCount => ErrorInvalidPlayerCount,
+        DesktopErrorCode.InvalidFillWait => ErrorInvalidFillWait,
         DesktopErrorCode.InvalidZeroTierAddress => ErrorInvalidZeroTierAddress,
         DesktopErrorCode.BackendFolderDoesNotExist => ErrorBackendFolderDoesNotExist,
         DesktopErrorCode.BackendExecutableMissing => string.Format(CultureInfo.InvariantCulture, ErrorBackendExecutableMissingFormat, entryName ?? "ReVerse.Capture"),

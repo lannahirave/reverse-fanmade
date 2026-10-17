@@ -13,6 +13,7 @@ public sealed class MatchmakingCoordinator(
 {
     private readonly object gate = new();
     private readonly Dictionary<string, Ticket> tickets = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, DateTimeOffset> queueChanged = new(StringComparer.Ordinal);
     private long order;
 
     private sealed class Ticket(string owner, JsonObject request, long order, DateTimeOffset expires)
@@ -60,6 +61,7 @@ public sealed class MatchmakingCoordinator(
                 throw Error(409, "Leave the current offered/joined session before searching again.");
             var ticket = new Ticket(account, request, ++order, DateTimeOffset.UtcNow.AddSeconds(options.TicketLifetimeSeconds));
             tickets.Add(ticket.Id, ticket);
+            QueueChanged(ticket);
             TicketEvent(ticket, "submitted");
             Log.ForContext("UserFacing", true).ForContext("TicketId", ticket.Id)
                 .Information("Player is searching for a match. Waiting for compatible players.");
@@ -76,6 +78,7 @@ public sealed class MatchmakingCoordinator(
             if (ticket.State is "canceled" or "expired" or "failed") return new();
             if (ticket.SessionId is { } sessionId && registry.Sessions.TryGetValue(sessionId, out var session))
                 EndSession(session);
+            if (ticket.State == "queued") QueueChanged(ticket);
             ticket.State = "canceled";
             ticket.Sequence++;
             TicketEvent(ticket, "canceled");
@@ -91,6 +94,7 @@ public sealed class MatchmakingCoordinator(
             if (hub.IsOnline(account)) return;
             foreach (var ticket in tickets.Values.Where(t => t.Owner == account && t.State == "queued").ToArray())
             {
+                QueueChanged(ticket);
                 ticket.State = "canceled";
                 ticket.Sequence++;
             }
@@ -527,9 +531,17 @@ public sealed class MatchmakingCoordinator(
     private static HashSet<string> Regions(Ticket ticket) => new(
         ticket.Request["playarea"]!["regions"]!.AsArray().Select(n => n!["name"]!.GetValue<string>()), StringComparer.Ordinal);
 
+    private void QueueChanged(Ticket ticket) => queueChanged[ticket.Ruleset] = DateTimeOffset.UtcNow;
+
+    private bool PartialReady(string ruleset, int players, DateTimeOffset now) =>
+        options.PartialMatchWaitSeconds > 0 && players >= 2
+        && queueChanged.TryGetValue(ruleset, out var since)
+        && now - since >= TimeSpan.FromSeconds(options.PartialMatchWaitSeconds);
+
     private void Match()
     {
         if (!options.ExperimentalSessionProtocol) return;
+        var now = DateTimeOffset.UtcNow;
         var queue = tickets.Values.Where(t => t.State == "queued" && hub.IsOnline(t.Owner)).OrderBy(t => t.Order).ToArray();
         foreach (var first in queue)
         {
@@ -547,13 +559,14 @@ public sealed class MatchmakingCoordinator(
                 regions = common;
                 if (selected.Count == count) break;
             }
-            if (selected.Count != count) continue;
-            var session = registry.Create(selected.Select(t => t.Owner).ToArray(), count, DateTimeOffset.UtcNow.AddSeconds(options.JoinLifetimeSeconds));
+            if (selected.Count < count && !PartialReady(first.Ruleset, selected.Count, now)) continue;
+            var session = registry.Create(selected.Select(t => t.Owner).ToArray(), selected.Count, DateTimeOffset.UtcNow.AddSeconds(options.JoinLifetimeSeconds));
             session.UseCrossPlay = first.Request["useCrossPlay"]!.GetValue<bool>();
             var offerId = Guid.NewGuid().ToString("N");
             session.OfferId = offerId;
             foreach (var ticket in selected)
             {
+                QueueChanged(ticket);
                 ticket.State = "offered";
                 ticket.SessionId = session.Id;
                 ticket.OfferId = offerId;
@@ -566,8 +579,13 @@ public sealed class MatchmakingCoordinator(
                     })
                 });
             }
-            Log.ForContext("UserFacing", true).ForContext("SessionId", session.Id)
-                .Information("Match found for {PlayerCount} players. Waiting for them to join.", selected.Count);
+            if (selected.Count < count)
+                Log.ForContext("UserFacing", true).ForContext("SessionId", session.Id)
+                    .Information("Starting with {PlayerCount} of {TargetPlayers} players after no queue change for {WaitSeconds} seconds. Waiting for them to join.",
+                        selected.Count, count, options.PartialMatchWaitSeconds);
+            else
+                Log.ForContext("UserFacing", true).ForContext("SessionId", session.Id)
+                    .Information("Match found for {PlayerCount} players. Waiting for them to join.", selected.Count);
         }
     }
 
@@ -576,6 +594,7 @@ public sealed class MatchmakingCoordinator(
         var now = DateTimeOffset.UtcNow;
         foreach (var ticket in tickets.Values.Where(t => t.State == "queued" && t.Expires <= now))
         {
+            QueueChanged(ticket);
             ticket.State = "expired";
             ticket.Sequence++;
             TicketEvent(ticket, "timedOut");

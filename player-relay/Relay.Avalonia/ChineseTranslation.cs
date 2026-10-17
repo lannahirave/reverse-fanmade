@@ -60,7 +60,9 @@ public sealed class ChineseTranslation : TranslationBase
     public override string DetectButton => "检测";
     public override string DetectAddressTooltip => "检测活动的 ZeroTier IPv4 地址。";
     public override string PlayersLabel => "玩家";
-    public override string PlayersTooltip => "开始匹配前所需的准确玩家数量，范围为 2 到 10。";
+    public override string PlayersTooltip => "对局人数，范围为 2 到 10。人数凑齐后立即开始。";
+    public override string FillWaitLabel => "等待（秒）";
+    public override string FillWaitTooltip => "如果搜索中的玩家少于“玩家”设定的人数，在这段秒数内无人加入或退出搜索后，将以当前所有玩家（至少 2 人）开始对局。设为 0 则始终等待人数凑齐。";
     public override string PlayerConnectionUrlLabel => "玩家连接 URL";
     public override string PlayerConnectionUrlPlaceholder => "检测 ZeroTier 以生成连接 URL";
     public override string CopyPlayerUrlTooltip => "复制玩家连接 URL 并分享给玩家。";
@@ -96,6 +98,7 @@ public sealed class ChineseTranslation : TranslationBase
     public override string ErrorIpconfigFailedFormat => "ipconfig 失败：{0}";
     public override string ErrorNoZeroTierAddress => "未找到活动的 ZeroTier IPv4 地址。请连接 ZeroTier 或手动输入地址。";
     public override string ErrorInvalidPlayerCount => "玩家数量必须在 2 到 10 之间。";
+    public override string ErrorInvalidFillWait => "等待时间必须在 0 到 100 秒之间。";
     public override string ErrorInvalidZeroTierAddress => "请输入有效的 ZeroTier IPv4 地址。";
     public override string ErrorBackendFolderDoesNotExist => "所选后端文件夹不存在。";
     public override string ErrorBackendExecutableMissingFormat => "在所选后端文件夹中未找到 {0}。";

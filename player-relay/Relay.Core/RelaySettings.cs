@@ -9,6 +9,7 @@ public sealed class RelaySettings
     public string BackendAddress { get; set; } = "";
     public string BackendFolder { get; set; } = "";
     public int BackendPlayers { get; set; } = 2;
+    public int BackendFillWaitSeconds { get; set; } = 15;
     public bool BackendUdpLoggingAllowed { get; set; }
     public string LanguageCode { get; set; } = "en";
     public bool DetailedLogsEnabled { get; set; }

@@ -56,7 +56,9 @@ public sealed class EnglishTranslation : TranslationBase
     public override string DetectButton => "DETECT";
     public override string DetectAddressTooltip => "Detect the active ZeroTier IPv4 address.";
     public override string PlayersLabel => "PLAYERS";
-    public override string PlayersTooltip => "The exact number of players required before matchmaking starts, from 2 to 10.";
+    public override string PlayersTooltip => "The match size, from 2 to 10. A full group starts at once.";
+    public override string FillWaitLabel => "FILL WAIT (S)";
+    public override string FillWaitTooltip => "When fewer players than PLAYERS are searching, start with everyone available (at least 2) once nobody has joined or left the search for this many seconds. 0 always waits for the full player count.";
     public override string PlayerConnectionUrlLabel => "PLAYER CONNECTION URL";
     public override string PlayerConnectionUrlPlaceholder => "Detect ZeroTier to generate the connection URL";
     public override string CopyPlayerUrlTooltip => "Copy the Player connection URL to share with players.";
@@ -92,6 +94,7 @@ public sealed class EnglishTranslation : TranslationBase
     public override string ErrorIpconfigFailedFormat => "ipconfig failed: {0}";
     public override string ErrorNoZeroTierAddress => "No active ZeroTier IPv4 address was found. Connect ZeroTier or enter the address manually.";
     public override string ErrorInvalidPlayerCount => "Player count must be between 2 and 10.";
+    public override string ErrorInvalidFillWait => "Fill wait must be between 0 and 100 seconds.";
     public override string ErrorInvalidZeroTierAddress => "Enter a valid ZeroTier IPv4 address.";
     public override string ErrorBackendFolderDoesNotExist => "The selected backend folder does not exist.";
     public override string ErrorBackendExecutableMissingFormat => "{0} was not found in the selected backend folder.";

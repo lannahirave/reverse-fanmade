@@ -155,18 +155,23 @@ public static partial class ZeroTierHost
         return null;
     }
 
-    public static string BuildCommand(string backendFolder, string address, int players, bool udpLoggingAllowed = false)
+    public const int MaxFillWaitSeconds = 100;
+
+    public static string BuildCommand(string backendFolder, string address, int players, bool udpLoggingAllowed = false, int fillWaitSeconds = 0)
     {
         var folder = Path.GetFullPath(backendFolder.Trim().Trim('"'));
         var ip = ValidateAddress(address);
         if (players is < 2 or > 10)
             throw new DesktopArgumentOutOfRangeException(DesktopErrorCode.InvalidPlayerCount, nameof(players));
+        if (fillWaitSeconds is < 0 or > MaxFillWaitSeconds)
+            throw new DesktopArgumentOutOfRangeException(DesktopErrorCode.InvalidFillWait, nameof(fillWaitSeconds));
         var settings = new[]
         {
             "Relay__Enabled=true",
             "Steam__Mode=fallback",
             "Matchmaking__ExperimentalSessionProtocol=true",
             $"Matchmaking__Rulesets__match_master={players}",
+            $"Matchmaking__PartialMatchWaitSeconds={fillWaitSeconds}",
             "Matchmaking__IgnorePlayerAttributes=true",
             $"ASPNETCORE_URLS={BuildBackendUrl(ip)}",
             "Signaling__Enabled=true",

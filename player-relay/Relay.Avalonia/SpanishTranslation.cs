@@ -60,7 +60,9 @@ public sealed class SpanishTranslation : TranslationBase
     public override string DetectButton => "DETECTAR";
     public override string DetectAddressTooltip => "Detecta la dirección IPv4 activa de ZeroTier.";
     public override string PlayersLabel => "JUGADORES";
-    public override string PlayersTooltip => "El número exacto de jugadores necesarios antes de iniciar el emparejamiento, de 2 a 10.";
+    public override string PlayersTooltip => "El tamaño de la partida, de 2 a 10. Un grupo completo empieza de inmediato.";
+    public override string FillWaitLabel => "ESPERA (S)";
+    public override string FillWaitTooltip => "Si buscan menos jugadores que JUGADORES, la partida empieza con todos los disponibles (al menos 2) cuando nadie haya entrado ni salido de la búsqueda durante estos segundos. 0 siempre espera al número completo de jugadores.";
     public override string PlayerConnectionUrlLabel => "URL DE CONEXIÓN DEL JUGADOR";
     public override string PlayerConnectionUrlPlaceholder => "Detecta ZeroTier para generar la URL de conexión";
     public override string CopyPlayerUrlTooltip => "Copia la URL de conexión del jugador para compartirla.";
@@ -96,6 +98,7 @@ public sealed class SpanishTranslation : TranslationBase
     public override string ErrorIpconfigFailedFormat => "ipconfig falló: {0}";
     public override string ErrorNoZeroTierAddress => "No se encontró una dirección IPv4 activa de ZeroTier. Conecta ZeroTier o introduce la dirección manualmente.";
     public override string ErrorInvalidPlayerCount => "El número de jugadores debe estar entre 2 y 10.";
+    public override string ErrorInvalidFillWait => "La espera debe estar entre 0 y 100 segundos.";
     public override string ErrorInvalidZeroTierAddress => "Introduce una dirección IPv4 válida de ZeroTier.";
     public override string ErrorBackendFolderDoesNotExist => "La carpeta del backend seleccionada no existe.";
     public override string ErrorBackendExecutableMissingFormat => "No se encontró {0} en la carpeta del backend seleccionada.";

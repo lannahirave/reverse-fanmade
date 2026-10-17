@@ -7,6 +7,7 @@ public enum DesktopErrorCode
     IpconfigFailed,
     NoZeroTierAddress,
     InvalidPlayerCount,
+    InvalidFillWait,
     InvalidZeroTierAddress,
     BackendFolderDoesNotExist,
     BackendExecutableMissing,

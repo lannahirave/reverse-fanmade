@@ -152,7 +152,7 @@
               <TextBlock x:Name="BackendFolderStatusText" Classes="helper" IsVisible="False" Margin="1,7,0,0" Foreground="#C7212B" TextWrapping="Wrap" />
             </StackPanel>
 
-            <Grid Margin="0,16,0,0" ColumnDefinitions="*,118" ColumnSpacing="14">
+            <Grid Margin="0,16,0,0" ColumnDefinitions="*,128,128" ColumnSpacing="14">
               <StackPanel Spacing="0">
                 <StackPanel Orientation="Horizontal">
                   <TextBlock x:Name="ZeroTierAddressLabelText" Classes="label" VerticalAlignment="Center" />
@@ -173,6 +173,15 @@
                   </Border>
                 </StackPanel>
                 <NumericUpDown x:Name="PlayersEntry" Classes="form-field" Minimum="2" Maximum="10" Increment="1" FormatString="0" ValueChanged="OnPlayerCountChanged" />
+              </StackPanel>
+              <StackPanel Grid.Column="2" Spacing="0">
+                <StackPanel Orientation="Horizontal">
+                  <TextBlock x:Name="FillWaitLabelText" Classes="label" VerticalAlignment="Center" />
+                  <Border x:Name="FillWaitHelp" Classes="help" ToolTip.Tip="">
+                    <TextBlock Text="?" Classes="help-glyph" />
+                  </Border>
+                </StackPanel>
+                <NumericUpDown x:Name="FillWaitEntry" Classes="form-field" Minimum="0" Maximum="100" Increment="5" FormatString="0" ValueChanged="OnPlayerCountChanged" />
               </StackPanel>
             </Grid>
             <TextBlock x:Name="ZeroTierStatusText" IsVisible="False" Margin="1,7,0,0" FontFamily="Consolas,DejaVu Sans Mono" FontSize="9" Foreground="#5E5751" TextWrapping="Wrap" />

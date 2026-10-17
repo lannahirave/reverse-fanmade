@@ -93,6 +93,29 @@ catch (ArgumentOutOfRangeException)
     Check(true, "match size upper bound enforced");
 }
 
+Check(command.Contains("Matchmaking__PartialMatchWaitSeconds=0", StringComparison.Ordinal), "default launch keeps exact match size");
+Check(ZeroTierHost.BuildCommand(folder, "10.205.138.26", 6, false, 15).Contains("Matchmaking__PartialMatchWaitSeconds=15", StringComparison.Ordinal), "fill wait reaches backend launch command");
+Check(JsonSerializer.Deserialize<RelaySettings>("{}")!.BackendFillWaitSeconds == 15, "fill wait defaults to 15 seconds");
+Check(JsonSerializer.Deserialize<RelaySettings>(JsonSerializer.Serialize(new RelaySettings { BackendFillWaitSeconds = 0 }))!.BackendFillWaitSeconds == 0, "fill wait survives settings serialization");
+foreach (var wait in new[] { -1, ZeroTierHost.MaxFillWaitSeconds + 1 })
+{
+    try
+    {
+        ZeroTierHost.BuildCommand(folder, "10.205.138.26", 6, false, wait);
+        Check(false, "fill wait bounds enforced: " + wait);
+    }
+    catch (ArgumentOutOfRangeException)
+    {
+        Check(true, "fill wait bounds enforced: " + wait);
+    }
+}
+foreach (var language in new TranslationService().AvailableLanguages)
+    Check(!string.IsNullOrWhiteSpace(language.FillWaitLabel) &&
+          !string.IsNullOrWhiteSpace(language.FillWaitTooltip) &&
+          language.GetDesktopErrorText(DesktopErrorCode.InvalidFillWait, null, null) == language.ErrorInvalidFillWait &&
+          !language.ErrorInvalidFillWait.Contains('?'),
+          "fill wait translated: " + language.Code);
+
 if (OperatingSystem.IsWindows())
 {
     var probe = new TcpListener(IPAddress.Loopback, 0);

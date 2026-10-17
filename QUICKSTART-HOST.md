@@ -41,8 +41,12 @@ the host. ZeroTier must also be allowed to communicate on the managed network.
 4. In **Backend host**, choose the folder containing `ReVerse.Capture.exe`.
 5. Click **Detect** next to the ZeroTier address and check that the detected
    address is the host's managed address.
-6. Set **Players** to the intended group size, from 2 through 10. The generated
-   command is available under **Advanced command** when troubleshooting.
+6. Set **Players** to the intended group size, from 2 through 10.
+   **Fill wait** (default 15 seconds) lets a smaller group of at least 2 start
+   once nobody has joined or left the search for that many seconds; set it to
+   0 to always wait for the full count.
+   The generated command is available under **Advanced command** when
+   troubleshooting.
 7. Click **Start backend**. It opens the backend in a separate command window
    and automatically fills **Backend server** in the host's relay section.
    Use **Stop backend** in the relay app when the session is over.
@@ -92,8 +96,11 @@ Avalonia host panel also works on Linux and Steam Deck.
    the folder containing
    `ReVerse.Capture`.
 4. Click **Detect** and verify the ZeroTier address.
-5. Set **Players** to the desired match size from 2 through 10. The generated
-   command is available under **Advanced command**.
+5. Set **Players** to the desired match size from 2 through 10.
+   **Fill wait** (default 15 seconds) lets a smaller group of at least 2 start
+   once nobody has joined or left the search for that many seconds; set it to
+   0 to always wait for the full count.
+   The generated command is available under **Advanced command**.
 6. Click **Start backend**. The app makes the executable runnable when
    necessary, starts the backend, and fills the local
    **Backend server** field automatically.
@@ -125,7 +132,9 @@ export Signaling__RegistrationFieldBIsPeerNumber=true
 ```
 
 Change `Matchmaking__Rulesets__match_master=2` to a value from 2 through 10
-when a different match size is needed. If binding to the managed address
+when a different match size is needed. Add
+`Matchmaking__PartialMatchWaitSeconds=15` to let a smaller group of at least
+2 start after the search has been unchanged for 15 seconds. If binding to the managed address
 fails, use `ASPNETCORE_URLS=http://0.0.0.0:6080`; keep
 `Signaling__PublicHost` set to the ZeroTier address.
 
