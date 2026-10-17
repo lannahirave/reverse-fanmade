@@ -48,6 +48,8 @@ public sealed class EnglishTranslation : TranslationBase
     public override string BackendFolderPlaceholder => "Select the extracted backend folder";
     public override string BrowseButton => "BROWSE";
     public override string BrowseBackendTooltip => "Choose the extracted backend folder.";
+    public override string GuideButton => "GUIDE";
+    public override string GuideTooltip => "Open the hosting guide on Steam.";
     public override string ZeroTierAddressLabel => "ZEROTIER ADDRESS";
     public override string ZeroTierAddressTooltip => "Use this host computer's managed ZeroTier IPv4 address. Detect can find it from an active ZeroTier adapter.";
     public override string ZeroTierAddressPlaceholder => "10.x.x.x";

@@ -13,6 +13,7 @@ namespace ReVerse.Relay.Desktop;
 public sealed partial class MainWindow : Window
 {
     private const string LaunchOptions = "/Rebe/HjmUriStr:http://127.0.0.1:5080";
+    private const string GuideUrl = "https://steamcommunity.com/sharedfiles/filedetails/?id=3800233626";
     private const int RelayHttpPort = 5080;
     private const int RelayHttpsPort = 5081;
     private const double CompactWidth = 560;
@@ -126,6 +127,8 @@ public sealed partial class MainWindow : Window
         HostFolderEntry.PlaceholderText = text.BackendFolderPlaceholder;
         ToolTip.SetTip(BackendFolderHelp, text.BackendFolderTooltip);
         BrowseBackendButton.Content = text.BrowseButton;
+        GuideButton.Content = text.GuideButton;
+        ToolTip.SetTip(GuideButton, text.GuideTooltip);
         ToolTip.SetTip(BrowseBackendButton, text.BrowseBackendTooltip);
         ZeroTierAddressLabelText.Text = text.ZeroTierAddressLabel;
         ZeroTierAddressEntry.PlaceholderText = text.ZeroTierAddressPlaceholder;
@@ -166,6 +169,7 @@ public sealed partial class MainWindow : Window
 
         hostExpanded = !hostExpanded;
         BackendHostPanel.IsVisible = hostExpanded;
+        GuideButton.IsVisible = hostExpanded;
         ContentGrid.ColumnDefinitions[1].Width = hostExpanded
             ? new GridLength(1, GridUnitType.Star)
             : new GridLength(0);
@@ -177,6 +181,20 @@ public sealed partial class MainWindow : Window
         {
             addressDetectionStarted = true;
             await DetectZeroTierAddressAsync();
+        }
+    }
+
+    private async void OnGuideClicked(object? sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var launcher = GetTopLevel(this)?.Launcher;
+            if (launcher is not null)
+                await launcher.LaunchUriAsync(new Uri(GuideUrl));
+        }
+        catch (Exception exception)
+        {
+            ShowError(exception);
         }
     }
 

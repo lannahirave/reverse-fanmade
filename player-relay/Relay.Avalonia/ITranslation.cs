@@ -54,6 +54,8 @@ public interface ITranslation
     string BackendFolderPlaceholder { get; }
     string BrowseButton { get; }
     string BrowseBackendTooltip { get; }
+    string GuideButton { get; }
+    string GuideTooltip { get; }
     string ZeroTierAddressLabel { get; }
     string ZeroTierAddressTooltip { get; }
     string ZeroTierAddressPlaceholder { get; }

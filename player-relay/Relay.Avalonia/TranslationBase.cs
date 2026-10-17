@@ -54,6 +54,8 @@ public abstract class TranslationBase : ITranslation
     public abstract string BackendFolderTooltip { get; }
     public abstract string BackendFolderPlaceholder { get; }
     public abstract string BrowseButton { get; }
+    public abstract string GuideButton { get; }
+    public abstract string GuideTooltip { get; }
     public abstract string BrowseBackendTooltip { get; }
     public abstract string ZeroTierAddressLabel { get; }
     public abstract string ZeroTierAddressTooltip { get; }

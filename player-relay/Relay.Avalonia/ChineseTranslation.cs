@@ -52,6 +52,8 @@ public sealed class ChineseTranslation : TranslationBase
     public override string BackendFolderPlaceholder => "选择解压后的后端文件夹";
     public override string BrowseButton => "浏览";
     public override string BrowseBackendTooltip => "选择解压后的后端文件夹。";
+    public override string GuideButton => "指南";
+    public override string GuideTooltip => "在 Steam 上打开托管指南。";
     public override string ZeroTierAddressLabel => "ZEROTIER 地址";
     public override string ZeroTierAddressTooltip => "使用这台主机电脑的托管 ZeroTier IPv4 地址。检测功能可从活动的 ZeroTier 适配器中找到它。";
     public override string ZeroTierAddressPlaceholder => "10.x.x.x";

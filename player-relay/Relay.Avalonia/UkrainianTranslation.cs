@@ -52,6 +52,8 @@ public sealed class UkrainianTranslation : TranslationBase
     public override string BackendFolderPlaceholder => "Виберіть розпаковану папку бекенду";
     public override string BrowseButton => "ВИБРАТИ";
     public override string BrowseBackendTooltip => "Виберіть розпаковану папку бекенду.";
+    public override string GuideButton => "ПОСІБНИК";
+    public override string GuideTooltip => "Відкрити посібник з хостингу в Steam.";
     public override string ZeroTierAddressLabel => "АДРЕСА ZEROTIER";
     public override string ZeroTierAddressTooltip => "Використовуйте керовану IPv4-адресу ZeroTier цього комп’ютера-хоста. Виявлення може знайти її через активний адаптер ZeroTier.";
     public override string ZeroTierAddressPlaceholder => "10.x.x.x";

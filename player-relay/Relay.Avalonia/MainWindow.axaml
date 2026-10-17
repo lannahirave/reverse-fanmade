@@ -10,7 +10,7 @@
         WindowStartupLocation="CenterScreen">
   <Grid RowDefinitions="74,*">
     <Border Grid.Row="0" Background="#100E0D" BorderBrush="#39322D" BorderThickness="0,0,0,1">
-      <Grid Margin="24,0" ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="12">
+      <Grid Margin="24,0" ColumnDefinitions="Auto,*,Auto,Auto,Auto" ColumnSpacing="12">
         <Grid VerticalAlignment="Center" ColumnDefinitions="34,Auto" ColumnSpacing="14">
           <Border Width="29" Height="29" BorderBrush="#C7212B" BorderThickness="1" HorizontalAlignment="Left" VerticalAlignment="Center">
             <Border.RenderTransform>
@@ -34,8 +34,18 @@
           </StackPanel>
         </Grid>
 
+        <Button x:Name="GuideButton"
+                Grid.Column="2"
+                Classes="compact"
+                Height="34"
+                VerticalAlignment="Center"
+                IsVisible="False"
+                Content=""
+                ToolTip.Tip=""
+                Click="OnGuideClicked" />
+
         <ComboBox x:Name="LanguageSelector"
-                  Grid.Column="2"
+                  Grid.Column="3"
                   Classes="language-selector"
                   VerticalAlignment="Center"
                   SelectionChanged="OnLanguageSelectionChanged">
@@ -47,7 +57,7 @@
         </ComboBox>
 
         <Button x:Name="HostToggleButton"
-                Grid.Column="3"
+                Grid.Column="4"
                 Classes="secondary"
                 Height="34"
                 VerticalAlignment="Center"

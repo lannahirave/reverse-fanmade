@@ -52,6 +52,8 @@ public sealed class SpanishTranslation : TranslationBase
     public override string BackendFolderPlaceholder => "Selecciona la carpeta del backend extraído";
     public override string BrowseButton => "EXAMINAR";
     public override string BrowseBackendTooltip => "Elige la carpeta del backend extraído.";
+    public override string GuideButton => "GUÍA";
+    public override string GuideTooltip => "Abrir la guía de alojamiento en Steam.";
     public override string ZeroTierAddressLabel => "DIRECCIÓN ZEROTIER";
     public override string ZeroTierAddressTooltip => "Usa la dirección IPv4 de ZeroTier administrada de este equipo anfitrión. Detectar puede encontrarla en un adaptador de ZeroTier activo.";
     public override string ZeroTierAddressPlaceholder => "10.x.x.x";
