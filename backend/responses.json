@@ -2,6 +2,6 @@
   "/systems/RVS-B-WW/40000/system.json": {
     "StatusCode": 200,
     "ContentType": "application/json",
-    "Body": "{\"json_ver\":\"1.0.0\",\"api_timeout\":60000,\"mtm\":\"http://127.0.0.1:5080\",\"mtms\":\"http://127.0.0.1:5080\",\"tmr\":\"http://127.0.0.1:5080\",\"selector\":\"http://127.0.0.1:5080\",\"working_state\":\"alive\"}"
+    "Body": "{\"json_ver\":\"1.0.1\",\"api_timeout\":60000,\"mtm\":\"http://127.0.0.1:5080\",\"mtms\":\"http://127.0.0.1:5080\",\"tmr\":\"http://127.0.0.1:5080\",\"nkm\":\"\",\"selector\":\"http://127.0.0.1:5080\",\"working_state\":\"alive\",\"custom_property\":\"eyJEMkRlYWRsaW5lIjoiNjU1MTIyODE2MDAwMDAwMDAwIiwiRUxPRm9ybXVsYUNvbnN0YW50IjoiNDAwIiwiTVJfRmFjdG9yIjoiMS4wIiwiTG9zZXJWYWx1ZXMiOlt7Ik1SX1VuZGVyIjoxNTAwLCJMb3NlclZhbHVlIjowLjk1fSx7Ik1SX1VuZGVyIjoyMDAwLCJMb3NlclZhbHVlIjowLjl9LHsiTVJfVW5kZXIiOjMzMDAsIkxvc2VyVmFsdWUiOjAuOX1dLCJXZWFwb25zIjpbeyJrIjoiV1AwMTAwIiwidiI6MTAwfSx7ImsiOiJXUDUwMDAiLCJ2Ijo0MH0seyJrIjoiV1AwMjAwIiwidiI6MTAwfSx7ImsiOiJXUDYwMDAiLCJ2Ijo0MH0seyJrIjoiV1AwMzAwIiwidiI6MTA1fSx7ImsiOiJXUDYyMDAiLCJ2Ijo1MH0seyJrIjoiV1AwNjAwIiwidiI6MTEwfSx7ImsiOiJXUDYxMDAiLCJ2Ijo1MH0seyJrIjoiV1AwNTAwIiwidiI6MTAwfSx7ImsiOiJXUDgxMDAiLCJ2IjoxODB9XSwiU2tpbGxzIjpbeyJrIjoiU0swMjIiLCJ2Ijo0MDB9LHsiayI6IlNLMDExIiwidiI6MTAwfSx7ImsiOiJTSzAyMyIsInYiOjUwfSx7ImsiOiJTSzAxNCIsInYiOjMwMH0seyJrIjoiU0swMjUiLCJ2IjoxNDB9LHsiayI6IlNLMDMzIiwidiI6MTcwfSx7ImsiOiJTSzAyNCIsInYiOjQwMH0seyJrIjoiU0swMjYiLCJ2Ijo0MDB9LHsiayI6IlNLMDE2IiwidiI6MzAwfSx7ImsiOiJTSzAyNyIsInYiOjQwMH1dfQ==\"}"
   }
 }
