@@ -16,6 +16,8 @@ static void Check(bool ok, string message)
     if (!ok) throw new Exception(message);
     Console.WriteLine("PASS " + message);
 }
+await EmoteBridgeTests.Run();
+await EmoteBridgeTests.RunUnsupportedBackend();
 var upstreamPort = Port(); var relayPort = Port(); var tlsPort = Port();
 var player = new RelaySettings { Username = "Гравець 🎮", SecretKey = "test secret", BackendAddress = $"http://127.0.0.1:{upstreamPort}" };
 var accountId = Guid.NewGuid().ToString("N");
@@ -78,7 +80,8 @@ upstream.Run(async context =>
 await upstream.StartAsync();
 var certDirectory = Path.Combine(AppContext.BaseDirectory, "artifacts", Guid.NewGuid().ToString("N"));
 var detailedDirectory = Path.Combine(certDirectory, "detailed-logs");
-var relay = new RelayService(detailedDirectory) { DetailedLogsEnabled = true };
+var danceDirectory = Path.Combine(certDirectory, "dance");
+var relay = new RelayService(detailedDirectory) { DetailedLogsEnabled = true, DanceDataLocator = () => danceDirectory };
 await relay.StartAsync(player, relayPort, tlsPort, certDirectory);
 try
 {
@@ -167,7 +170,10 @@ try
     active.Options.AddSubProtocol("relay-test");
     await active.ConnectAsync(new Uri($"ws://127.0.0.1:{relayPort}/socket"), CancellationToken.None);
     await relay.DisposeAsync().AsTask().WaitAsync(TimeSpan.FromSeconds(10));
-    relay = new RelayService();
+    var danceLink = JsonNode.Parse(File.ReadAllText(Path.Combine(danceDirectory, EmoteBridge.LinkFile)));
+    Check(danceLink?["state"]?.GetValue<string>() == "stopped",
+        "relay runs the dance sync while started and stops it on shutdown");
+    relay = new RelayService { DanceDataLocator = () => null };
     await relay.StartAsync(player, relayPort, tlsPort, certDirectory);
     Check(true, "stop with active socket and restart same ports");
     await upstream.StopAsync();
@@ -211,7 +217,7 @@ if (args.Length == 2 && args[0] == "--backend")
         foreach (var secret in new[] { "first secret", "second secret", "first secret" })
         {
             var localPort = Port();
-            await using var realRelay = new RelayService();
+            await using var realRelay = new RelayService { DanceDataLocator = () => null };
             await realRelay.StartAsync(new RelaySettings
             {
                 Username = "Same name", SecretKey = secret, BackendAddress = $"http://127.0.0.1:{realPort}"

@@ -31,6 +31,7 @@ public sealed class RelayService : IAsyncDisposable
     private readonly DetailedTrafficLog detailed;
     private WebApplication? app;
     private X509Certificate2? certificate;
+    private EmoteBridge? emotes;
     public event Action<RelayStatus>? StatusChanged;
     public event Action<Exception>? DetailedLogError
     {
@@ -39,6 +40,7 @@ public sealed class RelayService : IAsyncDisposable
     }
     public bool DetailedLogsEnabled { get => detailed.Enabled; set => detailed.Enabled = value; }
     public string DetailedLogsDirectory => detailed.DirectoryPath;
+    public Func<string?>? DanceDataLocator { get; init; }
 
     public RelayService(string? detailedLogsDirectory = null)
     {
@@ -149,6 +151,10 @@ public sealed class RelayService : IAsyncDisposable
         });
         try { await app.StartAsync(); }
         catch { await app.DisposeAsync(); app = null; certificate.Dispose(); certificate = null; throw; }
+        var gameDirectory = settings.GameDirectory;
+        emotes = new EmoteBridge(client, upstream, () => sessionToken,
+            DanceDataLocator ?? (() => EmoteBridge.FindGameDataDirectory(gameDirectory)));
+        emotes.Start();
         StatusChanged?.Invoke(RelayStatus.RunningWaitingForGame);
     }
 
@@ -289,6 +295,7 @@ public sealed class RelayService : IAsyncDisposable
     public async ValueTask DisposeAsync()
     {
         await stopping.CancelAsync();
+        if (emotes is not null) { await emotes.DisposeAsync(); emotes = null; }
         if (app is not null) { await app.StopAsync(); await app.DisposeAsync(); app = null; }
         client.Dispose(); certificate?.Dispose(); stopping.Dispose();
         detailed.Dispose();

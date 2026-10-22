@@ -81,6 +81,7 @@ try
     builder.Services.AddSingleton<MatchmakingCoordinator>();
     builder.Services.AddHostedService(provider => provider.GetRequiredService<MatchmakingCoordinator>());
     builder.Services.AddSingleton<MatchmakingEndpoints>();
+    builder.Services.AddSingleton(provider => new EmoteHub(provider.GetRequiredService<MatchmakingCoordinator>()));
     builder.Services.AddSingleton<RelayAccounts>();
     builder.Services.AddSingleton<SaveRepository>();
     builder.Services.AddSingleton<SteamClientIdentityProvider>();
@@ -146,6 +147,11 @@ try
                 var coordinator = context.RequestServices.GetRequiredService<MatchmakingCoordinator>();
                 await context.RequestServices.GetRequiredService<NotificationHub>().RunAsync(context, identity.AccountId,
                     () => coordinator.Disconnected(identity.AccountId));
+                return;
+            }
+            if (EmoteHub.Owns(context.Request.Path))
+            {
+                await EmoteHub.Handle(context);
                 return;
             }
             if (context.Request.Path.StartsWithSegments("/relay/saves"))

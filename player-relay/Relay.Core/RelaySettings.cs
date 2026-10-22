@@ -13,6 +13,7 @@ public sealed class RelaySettings
     public bool BackendUdpLoggingAllowed { get; set; }
     public string LanguageCode { get; set; } = "en";
     public bool DetailedLogsEnabled { get; set; }
+    public string GameDirectory { get; set; } = "";
     [JsonIgnore]
     public string SecretKey { get; set; } = "";
 

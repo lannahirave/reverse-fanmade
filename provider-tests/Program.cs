@@ -7,6 +7,12 @@ internal static class Program
         if (args is ["--udp-tests"]) { UdpLoggingTests.Run(); await NetworkTests.ProviderSmoke(); await NetworkTests.ProviderSmoke(failedUdpLog: true); return 0; }
         if (args is ["--logging-tests"]) { LoggingTests.Run(); NotificationLifetimeTests.Run(); return 0; }
         if (args is ["--http-probe"]) return await NetworkTests.HttpProbe();
+        if (args is ["--emote-tests"])
+        {
+            EmoteHubTests.Sanitize(); EmoteHubTests.FanOut(); EmoteHubTests.LongPollWakes(); EmoteHubTests.Bounds();
+            Console.WriteLine("PASS dance event hub");
+            return 0;
+        }
         if (args.Length != 0)
         {
             Console.Error.WriteLine("Run without arguments for the provider regression suite.");
@@ -37,6 +43,10 @@ internal static class Program
             ("peer diagnostics opt-in preserves even malformed primary/secondary forwarding", PeerDiagnosticsTests.Forwarding),
             ("bounded peer diagnostics retain late milestones", PeerDiagnosticsTests.Sampling),
             ("recursive metadata redaction preserves its input", DirectoryTests.Redaction),
+            ("dance events: field whitelist and rejection", EmoteHubTests.Sanitize),
+            ("dance events: same-session fan-out excludes sender", EmoteHubTests.FanOut),
+            ("dance events: long poll wakes on post, renews, times out and cancels", EmoteHubTests.LongPollWakes),
+            ("dance events: rate limit and bounded mailbox", EmoteHubTests.Bounds),
         ];
         var failures = 0;
         foreach (var test in tests)

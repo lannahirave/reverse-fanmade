@@ -87,6 +87,15 @@ public sealed class MatchmakingCoordinator(
         }
     }
 
+    public IReadOnlyCollection<string>? SessionPeers(string account)
+    {
+        lock (gate)
+        {
+            var session = registry.Sessions.Values.FirstOrDefault(s => s.Reserved.Contains(account));
+            return session?.Reserved.ToArray();
+        }
+    }
+
     public void Disconnected(string account)
     {
         lock (gate)
