@@ -37,7 +37,7 @@ internal static class EmoteBridgeTests
     private static JsonObject Ev(long seq, string action = "play", long? t = null) => new()
     {
         ["seq"] = seq, ["t"] = t ?? DateTimeOffset.UtcNow.ToUnixTimeSeconds(), ["action"] = action, ["member"] = 2,
-        ["bank"] = 20000, ["motion"] = 24, ["loop"] = true, ["hide_weapon"] = true, ["char"] = "jill", ["name"] = "Robot Dance", ["junk"] = "x"
+        ["bank"] = 20000, ["motion"] = 24, ["loop"] = true, ["hide_weapon"] = true, ["hold"] = true, ["char"] = "jill", ["name"] = "Robot Dance", ["junk"] = "x"
     };
 
     public static async Task Run()
@@ -110,6 +110,7 @@ internal static class EmoteBridgeTests
             Check(first.Token == token, "post carries the relay session token");
             Check(first.Body["junk"] is null && first.Body["seq"] is null && first.Body["t"] is null, "only event fields are forwarded");
             Check(first.Body["hide_weapon"] is JsonValue hw && hw.GetValue<bool>(), "hide_weapon is forwarded");
+            Check(first.Body["hold"] is JsonValue ho && ho.GetValue<bool>(), "hold is forwarded");
             Check((int)first.Body["motion"]! == 24 && (string)first.Body["action"]! == "play" && (int)first.Body["member"]! == 2,
                 "event fields preserved");
 

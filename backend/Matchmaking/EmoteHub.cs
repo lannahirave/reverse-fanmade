@@ -42,6 +42,7 @@ public sealed class EmoteHub(Func<string, IReadOnlyCollection<string>?> peersOf,
             result["motion"] = Int(body, "motion", 0, 200, required: true);
             result["loop"] = body["loop"] is JsonValue l && l.TryGetValue<bool>(out var loop) && loop;
             result["hide_weapon"] = body["hide_weapon"] is JsonValue h && h.TryGetValue<bool>(out var hide) && hide;
+            result["hold"] = body["hold"] is JsonValue o && o.TryGetValue<bool>(out var hold) && hold;
             result["char"] = Text(body, "char", 16, c => c is >= 'a' and <= 'z');
             result["name"] = Text(body, "name", 48, c => !char.IsControl(c));
         }

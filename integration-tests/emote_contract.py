@@ -8,7 +8,7 @@ from private_match_contract import create_body
 
 
 def play(member=0, motion=24):
-    return {'action': 'play', 'member': member, 'bank': 20000, 'motion': motion, 'loop': True, 'hide_weapon': True,
+    return {'action': 'play', 'member': member, 'bank': 20000, 'motion': motion, 'loop': True, 'hide_weapon': True, 'hold': True,
             'char': 'jill', 'name': 'Robot Dance', 'smuggled': {'x': 1}}
 
 
@@ -52,7 +52,7 @@ def main():
         events = result['body']['events']
         assert len(events) == 1, events
         ev = events[0]
-        assert ev['from'] == host['id'] and ev['action'] == 'play' and ev['motion'] == 24 and ev['hide_weapon'] is True and 'smuggled' not in ev, ev
+        assert ev['from'] == host['id'] and ev['action'] == 'play' and ev['motion'] == 24 and ev['hide_weapon'] is True and ev['hold'] is True and 'smuggled' not in ev, ev
 
         assert h.request('GET', '/relay/emote?wait=0', host)['events'] == []
         assert h.request('GET', '/relay/emote?wait=0', outsider)['events'] == []
