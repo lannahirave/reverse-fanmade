@@ -9,7 +9,7 @@ internal static class EmoteHubTests
     private static JsonObject Play(int member = 1, int motion = 24) => new()
     {
         ["action"] = "play", ["member"] = member, ["bank"] = 20000, ["motion"] = motion,
-        ["loop"] = true, ["char"] = "jill", ["name"] = "Robot Dance", ["extra"] = "dropped"
+        ["loop"] = true, ["hide_weapon"] = true, ["char"] = "jill", ["name"] = "Robot Dance", ["extra"] = "dropped"
     };
 
     private static EmoteHub Hub() => new(account => account switch
@@ -24,6 +24,11 @@ internal static class EmoteHubTests
         var clean = EmoteHub.Sanitize(Play());
         Assert.That(clean["extra"] is null, "unknown fields are dropped");
         Assert.That((int)clean["motion"]! == 24 && (bool)clean["loop"]! && (string)clean["char"]! == "jill", "allowed fields are copied");
+        Assert.That((bool)clean["hide_weapon"]!, "hide_weapon is copied");
+        var plain = EmoteHub.Sanitize(new JsonObject { ["action"] = "play", ["member"] = 0, ["bank"] = 20000, ["motion"] = 1 });
+        Assert.That(plain["hide_weapon"] is JsonValue hv && !hv.GetValue<bool>(), "hide_weapon defaults to false");
+        var odd = EmoteHub.Sanitize(new JsonObject { ["action"] = "play", ["member"] = 0, ["bank"] = 20000, ["motion"] = 1, ["hide_weapon"] = "yes" });
+        Assert.That(!odd["hide_weapon"]!.GetValue<bool>(), "a non-boolean hide_weapon is false");
         var stop = EmoteHub.Sanitize(new JsonObject { ["action"] = "stop", ["member"] = 2, ["bank"] = 5 });
         Assert.That(stop.Count == 2, "stop carries only action and member");
         foreach (var bad in new[]

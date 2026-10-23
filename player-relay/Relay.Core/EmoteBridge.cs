@@ -191,7 +191,7 @@ public sealed class EmoteBridge : IAsyncDisposable
             var t = ev["t"] is JsonValue tv && tv.TryGetValue<long>(out var tt) ? tt : 0;
             if (Math.Abs(now - t) > MaxEventAge.TotalSeconds) continue;
             var body = new JsonObject();
-            foreach (var key in new[] { "action", "member", "bank", "motion", "loop", "char", "name" })
+            foreach (var key in new[] { "action", "member", "bank", "motion", "loop", "hide_weapon", "char", "name" })
                 if (ev[key] is { } value) body[key] = value.DeepClone();
             using var request = Request(HttpMethod.Post, "/relay/emote");
             request.Content = JsonContent.Create(body);
