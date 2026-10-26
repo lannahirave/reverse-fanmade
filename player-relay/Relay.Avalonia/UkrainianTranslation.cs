@@ -111,4 +111,16 @@ public sealed class UkrainianTranslation : TranslationBase
     public override string AlreadyRunningMessage => "ReVerse Relay вже запущено. Закрити запущену копію й відкрити нову?";
     public override string ErrorBackendExecutablePermission => "Не вдалося зробити ReVerse.Capture виконуваним. Виконайте chmod +x ReVerse.Capture у папці бекенду.";
     public override string ErrorBackendUrlRequired => "Виявіть дійсну адресу ZeroTier перед запуском бекенду.";
+    public override string ServerApiKeyLabel => "API-КЛЮЧ СЕРВЕРА (НЕОБОВ'ЯЗКОВО)";
+    public override string ServerApiKeyPlaceholder => "Залиште порожнім, якщо хост не має ключа";
+    public override string ServerApiKeyTooltip => "Введіть API-ключ сервера, який дав хост. Залиште порожнім, якщо хост його не встановив. Ключ не зберігається між запусками.";
+    public override string HostApiKeyPlaceholder => "Порожньо: підключитися може будь-хто з URL";
+    public override string HostApiKeyTooltip => "Якщо задано, бекенд приймає лише гравців, які ввели цей ключ. Передайте його гравцям разом з URL підключення гравця. Використовуйте 16–128 літер, цифр, крапок, дефісів або підкреслень. Ключ не зберігається між запусками.";
+    public override string GenerateButton => "СТВОРИТИ";
+    public override string GenerateApiKeyTooltip => "Створити випадковий API-ключ сервера.";
+    public override string CopyApiKeyTooltip => "Скопіювати API-ключ сервера, щоб передати гравцям.";
+    public override string ErrorInvalidServerApiKey => "Введіть API-ключ сервера довжиною до 1024 символів без керівних символів або залиште порожнім.";
+    public override string ErrorServerApiKeyRejected => "Сервер відхилив API-ключ сервера. Попросіть у хоста актуальний ключ.";
+    public override string ErrorServerUnreachable => "Не вдалося під'єднатися до сервера, або він закрив з'єднання. Перевірте адресу бекенду.";
+    public override string ErrorInvalidHostApiKey => "API-ключ сервера має містити 16–128 літер, цифр, крапок, дефісів або підкреслень або бути порожнім.";
 }

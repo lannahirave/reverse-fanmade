@@ -19,10 +19,11 @@ static void Check(bool ok, string message)
 await EmoteBridgeTests.Run();
 await EmoteBridgeTests.RunUnsupportedBackend();
 var upstreamPort = Port(); var relayPort = Port(); var tlsPort = Port();
-var player = new RelaySettings { Username = "Гравець 🎮", SecretKey = "test secret", BackendAddress = $"http://127.0.0.1:{upstreamPort}" };
+var player = new RelaySettings { Username = "Гравець 🎮", SecretKey = "test secret", BackendAddress = $"http://127.0.0.1:{upstreamPort}", ServerApiKey = "  relay test api key 0123456789  " };
 var accountId = Guid.NewGuid().ToString("N");
 var accountToken = Convert.ToHexString(System.Security.Cryptography.RandomNumberGenerator.GetBytes(32));
 Check(!System.Text.Json.JsonSerializer.Serialize(player).Contains("test secret"), "settings do not serialize the secret");
+Check(!System.Text.Json.JsonSerializer.Serialize(player).Contains("api key"), "settings do not serialize the server API key");
 var expectedName = Convert.ToBase64String(Encoding.UTF8.GetBytes(player.Username));
 var builder = WebApplication.CreateBuilder();
 builder.Logging.ClearProviders();
@@ -31,6 +32,8 @@ await using var upstream = builder.Build();
 upstream.UseWebSockets();
 upstream.Run(async context =>
 {
+    if (context.Request.Headers[RelayService.ApiKeyHeader] is not { Count: 1 } apiKey || apiKey[0] != "relay test api key 0123456789")
+    { context.Response.StatusCode = 401; return; }
     if (context.Request.Headers[RelayService.NgrokSkipBrowserWarningHeader].ToString() != "1")
     { context.Response.StatusCode = 428; return; }
     if (context.Request.Path == "/relay/account/login")
@@ -91,8 +94,9 @@ try
     request.Headers.TryAddWithoutValidation(RelayService.PlayerHeader, "spoof");
     request.Headers.TryAddWithoutValidation(RelayService.NameHeader, "spoof");
     request.Headers.TryAddWithoutValidation(RelayService.SessionHeader, "spoof");
+    request.Headers.TryAddWithoutValidation(RelayService.ApiKeyHeader, "spoof");
     using var response = await client.SendAsync(request);
-    Check((int)response.StatusCode == 201, "status and injected identity override");
+    Check((int)response.StatusCode == 201, "status, injected identity and API key override");
     Check((await response.Content.ReadAsByteArrayAsync()).SequenceEqual(bytes), "binary HTTP body preserved");
     Check(response.Headers.GetValues("X-Query").Single() == "?q=a%2Fb&x=1", "query preserved");
     Check(response.Headers.GetValues("X-Method").Single() == "PATCH", "method preserved");
@@ -157,6 +161,8 @@ try
         entry["data"]?["direction"]?.GetValue<string>() == "backendToClient")
         .SelectMany(entry => Convert.FromBase64String(entry["data"]!["payload"]!["Base64"]!.GetValue<string>()))
         .SequenceEqual(bytes), "detailed relay WebSocket backend frames are exact");
+    Check(!ReadDetailedLines().Any(line => line.Contains("relay test api key", StringComparison.Ordinal)),
+        "detailed relay log never records the server API key");
     relay.DetailedLogsEnabled = false;
     var count = ReadDetailedLines().Length;
     using (var quiet = await client.GetAsync($"http://127.0.0.1:{relayPort}/echo"))
@@ -166,6 +172,18 @@ try
     using (var resumed = await client.GetAsync($"http://127.0.0.1:{relayPort}/echo"))
         Check((int)resumed.StatusCode == 201, "relay continues when detailed logging resumes");
     Check(ReadDetailedLines().Length > count, "detailed relay logging resumes live");
+    foreach (var (rejectedKey, rejectedCase) in new[] { ("wrong key", "wrong"), ("", "missing") })
+    {
+        var rejected = new RelayService(Path.Combine(certDirectory, "rejected-logs")) { DanceDataLocator = () => null };
+        try
+        {
+            await rejected.StartAsync(new RelaySettings { Username = player.Username, SecretKey = player.SecretKey,
+                BackendAddress = player.BackendAddress, ServerApiKey = rejectedKey }, Port(), Port(), certDirectory);
+            Check(false, rejectedCase + " server API key is rejected at sign-in");
+        }
+        catch (RelayException ex) { Check(ex.Code == RelayErrorCode.ServerApiKeyRejected, rejectedCase + " server API key is rejected at sign-in"); }
+        finally { await rejected.DisposeAsync(); }
+    }
     using var active = new ClientWebSocket();
     active.Options.AddSubProtocol("relay-test");
     await active.ConnectAsync(new Uri($"ws://127.0.0.1:{relayPort}/socket"), CancellationToken.None);
@@ -196,7 +214,9 @@ if (args.Length == 2 && args[0] == "--backend")
         RedirectStandardOutput = true, RedirectStandardError = true
     };
     info.ArgumentList.Add(backendDll);
+    const string serverKey = "real backend api key 0123456789";
     info.Environment["Relay__Enabled"] = "true";
+    info.Environment["Access__ApiKey"] = serverKey;
     info.Environment["Steam__Mode"] = "fallback";
     info.Environment["ASPNETCORE_URLS"] = $"http://127.0.0.1:{realPort}";
     info.Environment["Relay__DatabasePath"] = Path.Combine(certDirectory, "real-accounts.db");
@@ -210,7 +230,13 @@ if (args.Length == 2 && args[0] == "--backend")
         using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(20));
         while (true)
         {
-            try { using var ready = await http.GetAsync($"http://127.0.0.1:{realPort}/ready", deadline.Token); break; }
+            try
+            {
+                using var probe = new HttpRequestMessage(HttpMethod.Get, $"http://127.0.0.1:{realPort}/ready");
+                probe.Headers.Add(RelayService.ApiKeyHeader, serverKey);
+                using var ready = await http.SendAsync(probe, deadline.Token);
+                break;
+            }
             catch (HttpRequestException) { await Task.Delay(100, deadline.Token); }
         }
         var found = new List<string>();
@@ -220,7 +246,7 @@ if (args.Length == 2 && args[0] == "--backend")
             await using var realRelay = new RelayService { DanceDataLocator = () => null };
             await realRelay.StartAsync(new RelaySettings
             {
-                Username = "Same name", SecretKey = secret, BackendAddress = $"http://127.0.0.1:{realPort}"
+                Username = "Same name", SecretKey = secret, BackendAddress = $"http://127.0.0.1:{realPort}", ServerApiKey = serverKey
             }, localPort, Port(), certDirectory);
             using var signed = await http.PostAsync($"http://127.0.0.1:{localPort}/v1/steam-steam/sign/RVS-B-WW", null);
             signed.EnsureSuccessStatusCode();
@@ -237,9 +263,31 @@ if (args.Length == 2 && args[0] == "--backend")
             var ack = new byte[1024];
             var receivedAck = await socket.ReceiveAsync(new ArraySegment<byte>(ack), deadline.Token);
             Check(Encoding.UTF8.GetString(ack, 0, receivedAck.Count).Contains("CMD_RESPONSE"), "real backend authenticated WebSocket ACK");
-            await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "done", deadline.Token);
+            try { await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "done", deadline.Token); }
+            catch (WebSocketException) { }
         }
         Check(found[0] != found[1] && found[0] == found[2], "real relay → backend match-or-create account identity");
+        async Task<string> Direct(string? key, string path = "/ready")
+        {
+            using var fresh = new HttpClient();
+            using var message = new HttpRequestMessage(HttpMethod.Get, $"http://127.0.0.1:{realPort}{path}");
+            if (key is not null) message.Headers.TryAddWithoutValidation(RelayService.ApiKeyHeader, key);
+            try
+            {
+                using var reply = await fresh.SendAsync(message, deadline.Token);
+                var body = await reply.Content.ReadAsStringAsync(deadline.Token);
+                return reply.StatusCode == HttpStatusCode.Unauthorized && body.Length == 0 ? "gate" : "passed";
+            }
+            catch (HttpRequestException) { return "dropped"; }
+        }
+        Check(await Direct(serverKey) == "passed", "real backend accepts the correct key");
+        Check(await Direct(null) == "gate", "real backend: missing key → 401");
+        Check(await Direct("wrong") == "gate", "real backend: wrong key → 401");
+        Check(await Direct(null, "/relay/account/login") == "gate", "real backend: sign-in without key → 401");
+        var statuses = new List<string>();
+        for (var i = 0; i < 30; i++) statuses.Add(await Direct(i % 2 == 0 ? null : "wrong"));
+        Check(statuses.All(s => s == "gate"), "real backend: repeated wrong keys keep answering 401");
+        Check(await Direct(serverKey) == "passed", "real backend: correct key still works after many rejections");
     }
     finally
     {

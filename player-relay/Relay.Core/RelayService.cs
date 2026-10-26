@@ -21,7 +21,9 @@ public sealed class RelayService : IAsyncDisposable
     public const string NameHeader = "X-Relay-Username";
     public const string SessionHeader = "X-Relay-Session-Token";
     public const string NgrokSkipBrowserWarningHeader = "ngrok-skip-browser-warning";
+    public const string ApiKeyHeader = "x-api-key";
     private string sessionToken = "";
+    private string apiKey = "";
     private readonly HttpClient client = new(new SocketsHttpHandler
     {
         AllowAutoRedirect = false, UseCookies = false, AutomaticDecompression = DecompressionMethods.None,
@@ -56,6 +58,9 @@ public sealed class RelayService : IAsyncDisposable
         var addresses = await Dns.GetHostAddressesAsync(upstream.DnsSafeHost);
         if (addresses.Any(IPAddress.IsLoopback) && (upstream.Port == httpPort || upstream.Port == httpsPort))
             throw new RelayException(RelayErrorCode.BackendPointsToRelay);
+        apiKey = settings.ServerApiKey;
+        client.DefaultRequestHeaders.Remove(ApiKeyHeader);
+        if (apiKey.Length > 0) client.DefaultRequestHeaders.TryAddWithoutValidation(ApiKeyHeader, apiKey);
         StatusChanged?.Invoke(RelayStatus.SigningIn);
         using var loginTimeout = CancellationTokenSource.CreateLinkedTokenSource(stopping.Token);
         loginTimeout.CancelAfter(TimeSpan.FromSeconds(30));
@@ -73,7 +78,17 @@ public sealed class RelayService : IAsyncDisposable
                 .ToDictionary(p => p.Key, p => p.Value.ToArray()),
             payload = DetailedTrafficLog.Payload(loginBytes)
         });
-        using var login = await client.SendAsync(loginRequest, loginTimeout.Token);
+        HttpResponseMessage sent;
+        try
+        {
+            sent = await client.SendAsync(loginRequest, loginTimeout.Token);
+        }
+        catch (HttpRequestException exception) when (exception.HttpRequestError is HttpRequestError.ResponseEnded or HttpRequestError.ConnectionError
+            || exception.InnerException is IOException)
+        {
+            throw new RelayException(RelayErrorCode.ServerUnreachable, innerException: exception);
+        }
+        using var login = sent;
         var loginResponseBytes = await login.Content.ReadAsByteArrayAsync(loginTimeout.Token);
         detailed.Write("relayLoginResponse", new
         {
@@ -81,6 +96,8 @@ public sealed class RelayService : IAsyncDisposable
             headers = login.Headers.Concat(login.Content.Headers).ToDictionary(p => p.Key, p => p.Value.ToArray()),
             payload = DetailedTrafficLog.Payload(loginResponseBytes)
         });
+        if (login.StatusCode == HttpStatusCode.Unauthorized)
+            throw new RelayException(RelayErrorCode.ServerApiKeyRejected, (int)login.StatusCode);
         if (!login.IsSuccessStatusCode)
             throw new RelayException(RelayErrorCode.AccountSignInFailed, (int)login.StatusCode);
         var account = JsonSerializer.Deserialize<RelayAccount>(loginResponseBytes, new JsonSerializerOptions(JsonSerializerDefaults.Web))
@@ -163,7 +180,7 @@ public sealed class RelayService : IAsyncDisposable
         var result = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         { "Host", "Connection", "Keep-Alive", "Proxy-Connection", "Proxy-Authenticate", "Proxy-Authorization",
           "TE", "Trailer", "Transfer-Encoding", "Upgrade", PlayerHeader, NameHeader, SessionHeader,
-          NgrokSkipBrowserWarningHeader };
+          NgrokSkipBrowserWarningHeader, ApiKeyHeader };
         foreach (var value in connectionValues)
             foreach (var item in value.Split(',')) result.Add(item.Trim());
         return result;
@@ -230,6 +247,7 @@ public sealed class RelayService : IAsyncDisposable
         remote.Options.SetRequestHeader(NameHeader, name);
         remote.Options.SetRequestHeader(SessionHeader, sessionToken);
         remote.Options.SetRequestHeader(NgrokSkipBrowserWarningHeader, "1");
+        if (apiKey.Length > 0) remote.Options.SetRequestHeader(ApiKeyHeader, apiKey);
         var wsTarget = new UriBuilder(target) { Scheme = target.Scheme == "https" ? "wss" : "ws" };
         detailed.Write("relayWebSocketConnect", new
         {
@@ -299,7 +317,7 @@ public sealed class RelayService : IAsyncDisposable
         if (app is not null) { await app.StopAsync(); await app.DisposeAsync(); app = null; }
         client.Dispose(); certificate?.Dispose(); stopping.Dispose();
         detailed.Dispose();
-        sessionToken = "";
+        sessionToken = ""; apiKey = "";
     }
 
     private sealed record RelayAccount(string AccountId, string Username, string SessionToken);

@@ -16,6 +16,8 @@ public sealed class RelaySettings
     public string GameDirectory { get; set; } = "";
     [JsonIgnore]
     public string SecretKey { get; set; } = "";
+    [JsonIgnore]
+    public string ServerApiKey { get; set; } = "";
 
     public Uri Validate()
     {
@@ -25,6 +27,9 @@ public sealed class RelaySettings
             throw new RelayException(RelayErrorCode.InvalidUsername);
         if (SecretKey.Length is < 1 or > 1024)
             throw new RelayException(RelayErrorCode.InvalidSecretKey);
+        ServerApiKey = ServerApiKey.Trim();
+        if (ServerApiKey.Length > 1024 || ServerApiKey.Any(char.IsControl))
+            throw new RelayException(RelayErrorCode.InvalidServerApiKey);
         if (!Uri.TryCreate(BackendAddress, UriKind.Absolute, out var uri) ||
             uri.Scheme is not ("http" or "https") || uri.AbsolutePath != "/" ||
             uri.Query != "" || uri.Fragment != "" || uri.UserInfo != "")

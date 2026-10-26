@@ -16,7 +16,8 @@ public enum DesktopErrorCode
     BackendProcessCouldNotStart,
     BackendExecutablePermission,
     BackendUrlRequired,
-    PortOwnerCouldNotClose
+    PortOwnerCouldNotClose,
+    InvalidServerApiKey
 }
 
 public sealed class DesktopException : Exception

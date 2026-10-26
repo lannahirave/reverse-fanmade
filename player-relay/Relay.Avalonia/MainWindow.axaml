@@ -93,6 +93,16 @@
             <TextBox x:Name="BackendEntry" Classes="form-field" KeyDown="OnBackendKeyDown" />
           </StackPanel>
 
+          <StackPanel Margin="0,18,0,0" Spacing="0">
+            <StackPanel Orientation="Horizontal">
+              <TextBlock x:Name="ServerApiKeyLabelText" Classes="label" VerticalAlignment="Center" />
+              <Border x:Name="ServerApiKeyHelp" Classes="help" ToolTip.Tip="">
+                <TextBlock Text="?" Classes="help-glyph" />
+              </Border>
+            </StackPanel>
+            <TextBox x:Name="ServerApiKeyEntry" Classes="form-field" PasswordChar="•" MaxLength="1024" KeyDown="OnBackendKeyDown" />
+          </StackPanel>
+
           <Border Margin="0,22,0,0" BorderBrush="#39322D" BorderThickness="0,1,0,0" Padding="0,20,0,0">
             <StackPanel Spacing="0">
               <StackPanel Orientation="Horizontal">
@@ -185,6 +195,20 @@
               </StackPanel>
             </Grid>
             <TextBlock x:Name="ZeroTierStatusText" IsVisible="False" Margin="1,7,0,0" FontFamily="Consolas,DejaVu Sans Mono" FontSize="9" Foreground="#5E5751" TextWrapping="Wrap" />
+
+            <StackPanel Margin="0,16,0,0" Spacing="0">
+              <StackPanel Orientation="Horizontal">
+                <TextBlock x:Name="HostApiKeyLabelText" Classes="label" VerticalAlignment="Center" />
+                <Border x:Name="HostApiKeyHelp" Classes="help" ToolTip.Tip="">
+                  <TextBlock Text="?" Classes="help-glyph" />
+                </Border>
+              </StackPanel>
+              <Grid ColumnDefinitions="*,92,70">
+                <TextBox x:Name="HostApiKeyEntry" Classes="form-field" MaxLength="128" TextChanged="OnHostConfigurationChanged" />
+                <Button x:Name="GenerateApiKeyButton" Grid.Column="1" Classes="compact" Margin="0,7,0,0" Content="" ToolTip.Tip="" Click="OnGenerateApiKey" />
+                <Button x:Name="CopyApiKeyButton" Grid.Column="2" Classes="compact" Margin="6,7,0,0" Content="" ToolTip.Tip="" Click="OnCopyApiKeyClicked" />
+              </Grid>
+            </StackPanel>
 
             <Border Margin="0,22,0,0" BorderBrush="#39322D" BorderThickness="0,1,0,0" Padding="0,20,0,0">
               <StackPanel Spacing="0">

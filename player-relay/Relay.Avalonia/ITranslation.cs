@@ -113,6 +113,18 @@ public interface ITranslation
     string AlreadyRunningMessage { get; }
     string ErrorBackendExecutablePermission { get; }
     string ErrorBackendUrlRequired { get; }
+    string ServerApiKeyLabel { get; }
+    string ServerApiKeyPlaceholder { get; }
+    string ServerApiKeyTooltip { get; }
+    string HostApiKeyPlaceholder { get; }
+    string HostApiKeyTooltip { get; }
+    string GenerateButton { get; }
+    string GenerateApiKeyTooltip { get; }
+    string CopyApiKeyTooltip { get; }
+    string ErrorInvalidServerApiKey { get; }
+    string ErrorServerApiKeyRejected { get; }
+    string ErrorServerUnreachable { get; }
+    string ErrorInvalidHostApiKey { get; }
     string GetRelayStatusText(RelayStatus status);
     string GetRelayErrorText(RelayErrorCode code, int? statusCode);
     string GetDesktopErrorText(DesktopErrorCode code, string? detail, string? entryName);

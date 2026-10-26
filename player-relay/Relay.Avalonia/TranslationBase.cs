@@ -114,6 +114,18 @@ public abstract class TranslationBase : ITranslation
     public abstract string AlreadyRunningMessage { get; }
     public abstract string ErrorBackendExecutablePermission { get; }
     public abstract string ErrorBackendUrlRequired { get; }
+    public abstract string ServerApiKeyLabel { get; }
+    public abstract string ServerApiKeyPlaceholder { get; }
+    public abstract string ServerApiKeyTooltip { get; }
+    public abstract string HostApiKeyPlaceholder { get; }
+    public abstract string HostApiKeyTooltip { get; }
+    public abstract string GenerateButton { get; }
+    public abstract string GenerateApiKeyTooltip { get; }
+    public abstract string CopyApiKeyTooltip { get; }
+    public abstract string ErrorInvalidServerApiKey { get; }
+    public abstract string ErrorServerApiKeyRejected { get; }
+    public abstract string ErrorServerUnreachable { get; }
+    public abstract string ErrorInvalidHostApiKey { get; }
 
     public string GetRelayStatusText(RelayStatus status) => status switch
     {
@@ -138,6 +150,9 @@ public abstract class TranslationBase : ITranslation
         RelayErrorCode.AccountSignInFailed => string.Format(CultureInfo.InvariantCulture, ErrorAccountSignInFailedFormat, statusCode ?? 0),
         RelayErrorCode.BackendEmptyAccountResponse => ErrorBackendEmptyAccountResponse,
         RelayErrorCode.BackendInvalidAccountResponse => ErrorBackendInvalidAccountResponse,
+        RelayErrorCode.InvalidServerApiKey => ErrorInvalidServerApiKey,
+        RelayErrorCode.ServerApiKeyRejected => ErrorServerApiKeyRejected,
+        RelayErrorCode.ServerUnreachable => ErrorServerUnreachable,
         _ => code.ToString()
     };
 
@@ -159,6 +174,7 @@ public abstract class TranslationBase : ITranslation
         DesktopErrorCode.BackendProcessCouldNotStart => ErrorBackendProcessCouldNotStart,
         DesktopErrorCode.BackendExecutablePermission => ErrorBackendExecutablePermission,
         DesktopErrorCode.BackendUrlRequired => ErrorBackendUrlRequired,
+        DesktopErrorCode.InvalidServerApiKey => ErrorInvalidHostApiKey,
         DesktopErrorCode.PortOwnerCouldNotClose => string.Format(CultureInfo.InvariantCulture, ErrorPortOwnerCouldNotCloseFormat, entryName ?? ""),
         _ => code.ToString()
     };

@@ -47,8 +47,11 @@ the host. ZeroTier must also be allowed to communicate on the managed network.
    0 to always wait for the full count.
    The generated command is available under **Advanced command** when
    troubleshooting.
+   To require a key from every player, click **Generate** next to
+   **Server API key**. Leave it empty to let anyone with the URL connect.
 7. Click **Start backend**. It opens the backend in a separate command window
-   and automatically fills **Backend server** in the host's relay section.
+   and automatically fills **Backend server** and **Server API key** in the
+   host's relay section.
    Use **Stop backend** in the relay app when the session is over.
 8. Copy the **Player connection URL**. It should be similar to:
 
@@ -82,8 +85,9 @@ Send each player:
 1. The ZeroTier network ID.
 2. The copied **Player connection URL**, such as `http://10.205.138.26:6080`.
 3. The launch option shown above.
+4. The **Server API key**, if you set one. Use **Copy** next to it.
 
-Each player chooses their own username. No secret key needs to be exchanged.
+Each player chooses their own username.
 
 ## 6. Linux or Steam Deck host
 

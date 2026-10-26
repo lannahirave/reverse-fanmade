@@ -41,6 +41,7 @@ public sealed partial class MainWindow : Window
     private bool applyingLanguage;
     private bool launchOptionsCopied;
     private bool backendUrlCopied;
+    private bool apiKeyCopied;
 
     public MainWindow()
     {
@@ -112,6 +113,9 @@ public sealed partial class MainWindow : Window
         BackendServerLabelText.Text = text.BackendServerLabel;
         BackendEntry.PlaceholderText = text.BackendServerPlaceholder;
         ToolTip.SetTip(BackendServerHelp, text.BackendServerTooltip);
+        ServerApiKeyLabelText.Text = text.ServerApiKeyLabel;
+        ServerApiKeyEntry.PlaceholderText = text.ServerApiKeyPlaceholder;
+        ToolTip.SetTip(ServerApiKeyHelp, text.ServerApiKeyTooltip);
         SteamLaunchOptionLabelText.Text = text.SteamLaunchOptionLabel;
         ToolTip.SetTip(SteamLaunchOptionHelp, text.SteamLaunchOptionTooltip);
         ToolTip.SetTip(CopyButton, text.CopyLaunchOptionTooltip);
@@ -140,6 +144,13 @@ public sealed partial class MainWindow : Window
         ToolTip.SetTip(PlayersHelp, text.PlayersTooltip);
         FillWaitLabelText.Text = text.FillWaitLabel;
         ToolTip.SetTip(FillWaitHelp, text.FillWaitTooltip);
+        HostApiKeyLabelText.Text = text.ServerApiKeyLabel;
+        HostApiKeyEntry.PlaceholderText = text.HostApiKeyPlaceholder;
+        ToolTip.SetTip(HostApiKeyHelp, text.HostApiKeyTooltip);
+        GenerateApiKeyButton.Content = text.GenerateButton;
+        ToolTip.SetTip(GenerateApiKeyButton, text.GenerateApiKeyTooltip);
+        CopyApiKeyButton.Content = apiKeyCopied ? text.CopiedButton : text.CopyButton;
+        ToolTip.SetTip(CopyApiKeyButton, text.CopyApiKeyTooltip);
         PlayerConnectionUrlLabelText.Text = text.PlayerConnectionUrlLabel;
         PlayerBackendUrlEntry.PlaceholderText = text.PlayerConnectionUrlPlaceholder;
         CopyBackendUrlButton.Content = backendUrlCopied ? text.CopiedButton : text.CopyButton;
@@ -324,6 +335,7 @@ public sealed partial class MainWindow : Window
             settings.Username = UsernameEntry.Text ?? "";
             settings.SecretKey = SecretEntry.Text ?? "";
             settings.BackendAddress = BackendEntry.Text ?? "";
+            settings.ServerApiKey = ServerApiKeyEntry.Text ?? "";
             settings.LanguageCode = localization.Current.Code;
             settings.Validate();
             settings.Save();
@@ -376,6 +388,7 @@ public sealed partial class MainWindow : Window
         UsernameEntry.IsEnabled = enabled;
         SecretEntry.IsEnabled = enabled;
         BackendEntry.IsEnabled = enabled;
+        ServerApiKeyEntry.IsEnabled = enabled;
     }
 
     private void SetStatus(RelayStatus status)
@@ -627,7 +640,10 @@ public sealed partial class MainWindow : Window
             }
             var players = decimal.ToInt32(PlayersEntry.Value ?? 2);
             var fillWait = decimal.ToInt32(FillWaitEntry.Value ?? 0);
-            BackendCommandEntry.Text = ZeroTierHost.BuildCommand(folder, address, players, settings.BackendUdpLoggingAllowed, fillWait);
+            BackendCommandEntry.Text = ZeroTierHost.BuildCommand(folder, address, players, settings.BackendUdpLoggingAllowed, fillWait,
+                HostApiKeyEntry.Text ?? "");
+            if (backendStatusError is DesktopException { Code: DesktopErrorCode.InvalidServerApiKey })
+                SetBackendStatus(BackendStatus.Stopped);
             PlayerBackendUrlEntry.Text = ZeroTierHost.BuildBackendUrl(address);
             CopyBackendUrlButton.IsEnabled = true;
             UpdateStartBackendAvailability();
@@ -681,6 +697,25 @@ public sealed partial class MainWindow : Window
         CopyBackendUrlButton.Content = localization.Current.CopyButton;
     }
 
+    private void OnGenerateApiKey(object? sender, RoutedEventArgs e)
+    {
+        HostApiKeyEntry.Text = ZeroTierHost.GenerateApiKey();
+    }
+
+    private async void OnCopyApiKeyClicked(object? sender, RoutedEventArgs e)
+    {
+        var clipboard = GetTopLevel(this)?.Clipboard;
+        var key = HostApiKeyEntry.Text?.Trim();
+        if (clipboard is null || string.IsNullOrEmpty(key))
+            return;
+        await clipboard.SetTextAsync(key);
+        apiKeyCopied = true;
+        CopyApiKeyButton.Content = localization.Current.CopiedButton;
+        await Task.Delay(1200);
+        apiKeyCopied = false;
+        CopyApiKeyButton.Content = localization.Current.CopyButton;
+    }
+
     private void OnStartBackend(object? sender, RoutedEventArgs e)
     {
         try
@@ -698,6 +733,7 @@ public sealed partial class MainWindow : Window
             SetDetailedLogsMarker(settings.DetailedLogsEnabled);
             backendHost.Start(folder, command);
             BackendEntry.Text = backendUrl;
+            ServerApiKeyEntry.Text = ZeroTierHost.ValidateApiKey(HostApiKeyEntry.Text);
             SetBackendStatus(BackendStatus.Running);
         }
         catch (Exception exception)
@@ -764,6 +800,8 @@ public sealed partial class MainWindow : Window
         ZeroTierAddressEntry.IsEnabled = !running;
         PlayersEntry.IsEnabled = !running;
         FillWaitEntry.IsEnabled = !running;
+        HostApiKeyEntry.IsEnabled = !running;
+        GenerateApiKeyButton.IsEnabled = !running;
         UdpLoggingButton.IsEnabled = !running;
         DetectAddressButton.IsEnabled = !running;
         StartBackendButton.IsEnabled = !running;

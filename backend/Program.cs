@@ -39,6 +39,9 @@ try
 
     var capture = builder.Configuration.GetSection("Capture").Get<CaptureOptions>() ?? new CaptureOptions();
     capture.Validate();
+    var access = builder.Configuration.GetSection("Access").Get<AccessOptions>() ?? new AccessOptions();
+    access.Validate();
+    builder.Services.AddSingleton(access);
     var steam = builder.Configuration.GetSection("Steam").Get<SteamOptions>() ?? new SteamOptions();
     steam.Validate();
     var udpLogging = builder.Configuration.GetSection("UdpLogging").Get<UdpLogOptions>() ?? new();
@@ -101,6 +104,10 @@ try
     app.Lifetime.ApplicationStarted.Register(() =>
     {
         Log.ForContext("UserFacing", true).Information("Backend ready. Listening on {Addresses:l}", string.Join(", ", app.Urls));
+        if (access.Enabled)
+            Log.ForContext("UserFacing", true).Information("Server API key required.");
+        else
+            Log.ForContext("UserFacing", true).Warning("No server API key is set (Access:ApiKey). Anyone who can reach this backend can use it.");
         Log.ForContext("UserFacing", true).Information("Log files are in {LogDirectory:l}. Backend and request files roll at 1 MB.", logDirectory);
         Log.ForContext("UserFacing", true).Information("UDP conversation logging is {UdpLogging:l}; readable and JSON files roll at 10 MB.", udpLogging.Enabled ? "on" : "off");
         Log.ForContext("UserFacing", true).Information("Full traffic recording is {Recording:l}. Ordinary diagnostic logs are always written.",
@@ -108,6 +115,7 @@ try
     });
     app.Lifetime.ApplicationStopping.Register(() =>
         Log.ForContext("UserFacing", true).Information("Stopping the backend and closing player connections..."));
+    app.UseMiddleware<AccessGate>();
     app.UseSerilogRequestLogging();
     app.UseWebSockets();
     app.UseMiddleware<DetailedTrafficMiddleware>();

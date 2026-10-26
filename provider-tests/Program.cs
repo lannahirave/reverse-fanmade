@@ -6,6 +6,12 @@ internal static class Program
     {
         if (args is ["--udp-tests"]) { UdpLoggingTests.Run(); await NetworkTests.ProviderSmoke(); await NetworkTests.ProviderSmoke(failedUdpLog: true); return 0; }
         if (args is ["--logging-tests"]) { LoggingTests.Run(); NotificationLifetimeTests.Run(); return 0; }
+        if (args is ["--access-tests"])
+        {
+            AccessGateTests.Gate(); AccessGateTests.Options();
+            Console.WriteLine("PASS access gate");
+            return 0;
+        }
         if (args is ["--http-probe"]) return await NetworkTests.HttpProbe();
         if (args is ["--emote-tests"])
         {
@@ -47,6 +53,8 @@ internal static class Program
             ("dance events: same-session fan-out excludes sender", EmoteHubTests.FanOut),
             ("dance events: long poll wakes on post, renews, times out and cancels", EmoteHubTests.LongPollWakes),
             ("dance events: rate limit and bounded mailbox", EmoteHubTests.Bounds),
+            ("access gate: key check", AccessGateTests.Gate),
+            ("access gate: option validation", AccessGateTests.Options),
         ];
         var failures = 0;
         foreach (var test in tests)

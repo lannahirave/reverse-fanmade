@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Runtime.Versioning;
+using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 
 namespace ReVerse.Relay.Desktop;
@@ -157,10 +158,12 @@ public static partial class ZeroTierHost
 
     public const int MaxFillWaitSeconds = 100;
 
-    public static string BuildCommand(string backendFolder, string address, int players, bool udpLoggingAllowed = false, int fillWaitSeconds = 0)
+    public static string BuildCommand(string backendFolder, string address, int players, bool udpLoggingAllowed = false, int fillWaitSeconds = 0,
+        string serverApiKey = "")
     {
         var folder = Path.GetFullPath(backendFolder.Trim().Trim('"'));
         var ip = ValidateAddress(address);
+        var apiKey = ValidateApiKey(serverApiKey);
         if (players is < 2 or > 10)
             throw new DesktopArgumentOutOfRangeException(DesktopErrorCode.InvalidPlayerCount, nameof(players));
         if (fillWaitSeconds is < 0 or > MaxFillWaitSeconds)
@@ -186,6 +189,8 @@ public static partial class ZeroTierHost
             "Signaling__Reply21=1",
             "Signaling__RegistrationFieldBIsPeerNumber=true"
         };
+        if (apiKey.Length > 0)
+            settings = [.. settings, $"Access__ApiKey={apiKey}"];
         var controlSetting = $"Capture__DetailedLogsControlFile={RelaySettings.DetailedLogsControlFile}";
         return OperatingSystem.IsWindows()
             ? string.Join(" && ", settings.Append(controlSetting).Select(setting => $"set \"{setting}\"")) +
@@ -201,6 +206,17 @@ public static partial class ZeroTierHost
 
     public static string GetBackendEntryPath(string backendFolder) =>
         Path.Combine(Path.GetFullPath(backendFolder.Trim().Trim('"')), BackendEntryName);
+
+    public static string GenerateApiKey() =>
+        Convert.ToHexString(RandomNumberGenerator.GetBytes(16)).ToLowerInvariant();
+
+    public static string ValidateApiKey(string? apiKey)
+    {
+        var value = apiKey?.Trim() ?? "";
+        if (value.Length > 0 && !ApiKeyPattern().IsMatch(value))
+            throw new DesktopException(DesktopErrorCode.InvalidServerApiKey);
+        return value;
+    }
 
     public static string BuildBackendUrl(string address) => $"http://{ValidateAddress(address)}:6080";
 
@@ -226,6 +242,9 @@ public static partial class ZeroTierHost
 
     [GeneratedRegex(@"(?<![\d.])(?:\d{1,3}\.){3}\d{1,3}(?![\d.])")]
     private static partial Regex Ipv4Pattern();
+
+    [GeneratedRegex("^[A-Za-z0-9._-]{16,128}$")]
+    private static partial Regex ApiKeyPattern();
 }
 
 internal sealed class BackendHostController : IAsyncDisposable

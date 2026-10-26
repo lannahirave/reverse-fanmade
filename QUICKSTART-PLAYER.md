@@ -40,6 +40,8 @@ In the relay app enter:
 - **Username**: the account name you want to use.
 - **Backend server**: the Player connection URL supplied by the host, for example
   `http://10.205.138.26:6080`.
+- **Server API key (optional)**: the key supplied by the host, if any. Leave it
+  empty otherwise. Enter it again each time you start the app.
 
 The relay creates its internal connection value automatically; there is no
 secret-key field to complete. Click **Start relay** and leave the app running.

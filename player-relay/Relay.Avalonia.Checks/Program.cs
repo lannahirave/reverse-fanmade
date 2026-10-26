@@ -116,6 +116,36 @@ foreach (var language in new TranslationService().AvailableLanguages)
           !language.ErrorInvalidFillWait.Contains('?'),
           "fill wait translated: " + language.Code);
 
+Check(!command.Contains("Access__ApiKey", StringComparison.Ordinal), "default launch sets no server API key");
+var generatedKey = ZeroTierHost.GenerateApiKey();
+Check(generatedKey.Length == 32 && generatedKey.All(Uri.IsHexDigit) && generatedKey != ZeroTierHost.GenerateApiKey(), "generated server API keys are random 32-character keys");
+var keyed = ZeroTierHost.BuildCommand(folder, "10.205.138.26", 4, false, 0, "  " + generatedKey + "  ");
+Check(OperatingSystem.IsWindows()
+        ? keyed.Contains($"set \"Access__ApiKey={generatedKey}\"", StringComparison.Ordinal)
+        : keyed.Contains($" Access__ApiKey={generatedKey} ", StringComparison.Ordinal),
+    "server API key reaches backend launch command trimmed");
+foreach (var badKey in new[] { "short", new string('a', 129), "0123456789abcdef\"&calc", "0123456789abcdef %PATH%", "0123456789abcdef $(id)" })
+{
+    try
+    {
+        ZeroTierHost.BuildCommand(folder, "10.205.138.26", 4, false, 0, badKey);
+        Check(false, "unsafe or invalid server API key refused: " + badKey.Length);
+    }
+    catch (DesktopException exception) when (exception.Code == DesktopErrorCode.InvalidServerApiKey)
+    {
+        Check(true, "unsafe or invalid server API key refused: " + badKey.Length);
+    }
+}
+foreach (var language in new TranslationService().AvailableLanguages)
+    Check(new[] { language.ServerApiKeyLabel, language.ServerApiKeyPlaceholder, language.ServerApiKeyTooltip,
+              language.HostApiKeyPlaceholder, language.HostApiKeyTooltip, language.GenerateButton,
+              language.GenerateApiKeyTooltip, language.CopyApiKeyTooltip }.All(value => !string.IsNullOrWhiteSpace(value)) &&
+          language.GetRelayErrorText(RelayErrorCode.InvalidServerApiKey, null) == language.ErrorInvalidServerApiKey &&
+          language.GetRelayErrorText(RelayErrorCode.ServerApiKeyRejected, 401) == language.ErrorServerApiKeyRejected &&
+          language.GetRelayErrorText(RelayErrorCode.ServerUnreachable, null) == language.ErrorServerUnreachable &&
+          language.GetDesktopErrorText(DesktopErrorCode.InvalidServerApiKey, null, null) == language.ErrorInvalidHostApiKey,
+          "server API key translated: " + language.Code);
+
 if (OperatingSystem.IsWindows())
 {
     var probe = new TcpListener(IPAddress.Loopback, 0);

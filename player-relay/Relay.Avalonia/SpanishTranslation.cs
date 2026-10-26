@@ -111,4 +111,16 @@ public sealed class SpanishTranslation : TranslationBase
     public override string AlreadyRunningMessage => "ReVerse Relay ya se está ejecutando. ¿Cerrar la copia en ejecución y abrir una nueva?";
     public override string ErrorBackendExecutablePermission => "No se pudo hacer ejecutable ReVerse.Capture. Ejecuta chmod +x ReVerse.Capture en la carpeta del backend.";
     public override string ErrorBackendUrlRequired => "Detecta una dirección válida de ZeroTier antes de iniciar el backend.";
+    public override string ServerApiKeyLabel => "CLAVE API DEL SERVIDOR (OPCIONAL)";
+    public override string ServerApiKeyPlaceholder => "Déjalo vacío si el anfitrión no tiene clave";
+    public override string ServerApiKeyTooltip => "Introduce la clave API del servidor que te dio el anfitrión. Déjalo vacío si el anfitrión no configuró ninguna. No se guarda entre sesiones.";
+    public override string HostApiKeyPlaceholder => "Vacío: cualquiera con la URL puede conectarse";
+    public override string HostApiKeyTooltip => "Si se establece, el backend solo acepta a los jugadores que introduzcan esta clave. Compártela con tus jugadores junto con la URL de conexión del jugador. Usa de 16 a 128 letras, dígitos, puntos, guiones o guiones bajos. No se guarda entre sesiones.";
+    public override string GenerateButton => "GENERAR";
+    public override string GenerateApiKeyTooltip => "Crear una clave API del servidor aleatoria.";
+    public override string CopyApiKeyTooltip => "Copiar la clave API del servidor para compartirla con los jugadores.";
+    public override string ErrorInvalidServerApiKey => "Introduce una clave API del servidor de hasta 1024 caracteres sin caracteres de control, o déjala vacía.";
+    public override string ErrorServerApiKeyRejected => "El servidor rechazó la clave API del servidor. Pide al anfitrión la clave actual.";
+    public override string ErrorServerUnreachable => "No se pudo conectar con el servidor o este cerró la conexión. Comprueba la dirección del backend.";
+    public override string ErrorInvalidHostApiKey => "La clave API del servidor debe tener de 16 a 128 letras, dígitos, puntos, guiones o guiones bajos, o estar vacía.";
 }

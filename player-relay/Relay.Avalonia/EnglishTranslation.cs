@@ -107,4 +107,16 @@ public sealed class EnglishTranslation : TranslationBase
     public override string AlreadyRunningMessage => "ReVerse Relay is already running. Close the running copy and open a new one?";
     public override string ErrorBackendExecutablePermission => "ReVerse.Capture could not be made executable. Run chmod +x ReVerse.Capture in the backend folder.";
     public override string ErrorBackendUrlRequired => "Detect a valid ZeroTier address before starting the backend.";
+    public override string ServerApiKeyLabel => "SERVER API KEY (OPTIONAL)";
+    public override string ServerApiKeyPlaceholder => "Leave empty if the host has no key";
+    public override string ServerApiKeyTooltip => "Enter the server API key from the host. Leave it empty if the host did not set one. It is not saved between runs.";
+    public override string HostApiKeyPlaceholder => "Empty: anyone with the URL can connect";
+    public override string HostApiKeyTooltip => "When set, the backend accepts only players who enter this key. Share it with your players together with the Player connection URL. Use 16–128 letters, digits, dots, dashes or underscores. It is not saved between runs.";
+    public override string GenerateButton => "GENERATE";
+    public override string GenerateApiKeyTooltip => "Create a random server API key.";
+    public override string CopyApiKeyTooltip => "Copy the server API key to share with players.";
+    public override string ErrorInvalidServerApiKey => "Enter a server API key of up to 1024 characters without control characters, or leave it empty.";
+    public override string ErrorServerApiKeyRejected => "The server rejected the server API key. Ask the host for the current key.";
+    public override string ErrorServerUnreachable => "Could not reach the server, or it closed the connection. Check the backend address.";
+    public override string ErrorInvalidHostApiKey => "The server API key must be 16–128 letters, digits, dots, dashes or underscores, or empty.";
 }

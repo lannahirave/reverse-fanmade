@@ -111,4 +111,16 @@ public sealed class ChineseTranslation : TranslationBase
     public override string AlreadyRunningMessage => "ReVerse Relay 已在运行。是否关闭正在运行的副本并打开新的副本？";
     public override string ErrorBackendExecutablePermission => "无法使 ReVerse.Capture 可执行。请在后端文件夹中运行 chmod +x ReVerse.Capture。";
     public override string ErrorBackendUrlRequired => "启动后端前，请检测有效的 ZeroTier 地址。";
+    public override string ServerApiKeyLabel => "服务器 API 密钥（可选）";
+    public override string ServerApiKeyPlaceholder => "如果主机未设置密钥，请留空";
+    public override string ServerApiKeyTooltip => "输入主机提供的服务器 API 密钥。如果主机未设置，请留空。该密钥不会在两次运行之间保存。";
+    public override string HostApiKeyPlaceholder => "留空：任何拥有 URL 的人都可以连接";
+    public override string HostApiKeyTooltip => "设置后，后端只接受输入此密钥的玩家。请将它与玩家连接 URL 一起分享给玩家。使用 16–128 个字母、数字、点、连字符或下划线。该密钥不会在两次运行之间保存。";
+    public override string GenerateButton => "生成";
+    public override string GenerateApiKeyTooltip => "生成随机的服务器 API 密钥。";
+    public override string CopyApiKeyTooltip => "复制服务器 API 密钥以分享给玩家。";
+    public override string ErrorInvalidServerApiKey => "请输入不超过 1024 个字符且不含控制字符的服务器 API 密钥，或留空。";
+    public override string ErrorServerApiKeyRejected => "服务器拒绝了服务器 API 密钥。请向主机索要当前密钥。";
+    public override string ErrorServerUnreachable => "无法连接到服务器，或服务器关闭了连接。请检查后端地址。";
+    public override string ErrorInvalidHostApiKey => "服务器 API 密钥必须为 16–128 个字母、数字、点、连字符或下划线，或留空。";
 }

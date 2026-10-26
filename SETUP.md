@@ -85,8 +85,10 @@ The exact firewall command depends on the distribution.
    0 to always wait for the full count.
    The generated command is available under **Advanced command** when
    troubleshooting.
+   Optionally click **Generate** next to **Server API key** to require a key
+   from every player; see [Server API key](#server-api-key).
 7. Click **Start backend**. A separate command window opens, and the app fills
-   **Backend server** in the host's relay section automatically.
+   **Backend server** and **Server API key** in the host's relay section automatically.
 8. Use **Stop backend** in the app to close the backend process when finished.
 
 The app displays and can copy the **Player connection URL**, for example:
@@ -120,8 +122,11 @@ $env:Signaling__ExperimentalReplies="true"
 $env:Signaling__Reply19="1"
 $env:Signaling__Reply21="1"
 $env:Signaling__RegistrationFieldBIsPeerNumber="true"
+$env:Access__ApiKey="replace-with-a-long-random-key"
 .\ReVerse.Capture.exe
 ```
+
+Omit `Access__ApiKey` to run without a server API key.
 
 Change `match_master` to the intended group size from 2 through 10. If binding
 to the managed address fails, set `ASPNETCORE_URLS` to
@@ -141,6 +146,7 @@ to the managed address fails, set `ASPNETCORE_URLS` to
    once nobody has joined or left the search for that many seconds; set it to
    0 to always wait for the full count.
    The generated command is available under **Advanced command**.
+   Optionally click **Generate** next to **Server API key**.
 6. Click **Start backend**. The app makes `ReVerse.Capture` executable when
    necessary, starts the backend process, and fills the
    local **Backend server** field with the generated Player connection URL.
@@ -203,12 +209,29 @@ Fill in:
 1. **Username** — the name for this player.
 2. **Backend server** — the Player connection URL supplied by the host, such as
    `http://10.205.138.26:6080`.
+3. **Server API key (optional)** — the key supplied by the host, if the host set
+   one. Leave it empty otherwise. It is not saved between runs.
 
 The relay creates its internal connection value automatically; there is no
 secret-key field to complete.
 
 Click **Start relay** and keep the app running. The relay listens locally for
 the game on port `5080`; this port should not be exposed to the network.
+
+## Server API key
+
+The host can require a shared key. When `Access__ApiKey` is set, the backend
+answers any HTTP request or WebSocket connection that does not carry the key in
+the `x-api-key` header with `401 Unauthorized`. The relay sends the key on every
+request.
+
+| Setting | Default | Meaning |
+| --- | --- | --- |
+| `Access__ApiKey` | empty | Shared key, 16–1024 characters; empty disables the check |
+
+The relay app accepts keys of 16–128 letters, digits, dots, dashes and
+underscores. Use HTTPS when the backend is reachable from the internet, so the
+key is not sent in clear text. The UDP signaling port is not covered by the key.
 
 ## Configure the game
 

@@ -32,7 +32,8 @@ public sealed class DetailedTrafficMiddleware(RequestDelegate next, DetailedTraf
             remotePort,
             localAddress = context.Connection.LocalIpAddress?.ToString(),
             localPort = context.Connection.LocalPort,
-            headers = context.Request.Headers.ToDictionary(p => p.Key, p => p.Value.ToArray())
+            headers = context.Request.Headers.ToDictionary(p => p.Key, p =>
+                p.Key.Equals(Configuration.AccessOptions.HeaderName, StringComparison.OrdinalIgnoreCase) ? ["[REDACTED]"] : p.Value.ToArray())
         });
 
         var requestBody = context.Request.Body;

@@ -22,7 +22,10 @@ public enum RelayErrorCode
     BackendPointsToRelay,
     AccountSignInFailed,
     BackendEmptyAccountResponse,
-    BackendInvalidAccountResponse
+    BackendInvalidAccountResponse,
+    InvalidServerApiKey,
+    ServerApiKeyRejected,
+    ServerUnreachable
 }
 
 public sealed class RelayException : Exception
