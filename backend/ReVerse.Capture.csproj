@@ -11,8 +11,8 @@
     <PackageReference Include="BouncyCastle.Cryptography" Version="2.7.0" />
     <Compile Include="../traffic/*.cs" Link="Traffic/%(Filename)%(Extension)" />
     <EmbeddedResource Include="Persistence/Schema/001_saves.sql;contract.json;responses.json" />
-    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.9" />
-    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.2" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.14" />
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.5" />
   </ItemGroup>
   <ItemGroup>
     <None Update="Start-Backend.cmd;Start-FieldTest.ps1" CopyToPublishDirectory="PreserveNewest" />
