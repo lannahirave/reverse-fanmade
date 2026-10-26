@@ -1,0 +1,122 @@
+HOW TO RUN .EXE TOOLS FROM COMMAND PROMPT
+
+Some tools do not work if you double-click them. A black window flashes and
+closes. You have to run them from Command Prompt instead.
+
+The example below uses D2SkinPatch.zip. For any other tool, do the same steps
+and type that tool's name instead of D2SkinPatch.exe.
+
+
+STEP 1 - EXTRACT THE ZIP
+
+1. Close the game.
+2. Right-click D2SkinPatch.zip -> Extract All -> Extract.
+3. A new folder opens. You should see D2SkinPatch.exe in it.
+
+Do not run the .exe from inside the zip. Always extract first.
+
+
+STEP 2 - OPEN COMMAND PROMPT IN THAT FOLDER
+
+1. Click the address bar at the top of the folder window (where the folder
+   path is shown). The path turns blue.
+2. Type this over it and press Enter:
+
+     cmd .
+
+3. A black window opens. It shows the folder you were in, for example:
+
+     C:\Users\YourName\Downloads\D2SkinPatch>
+
+   If it shows a different folder, close it and do Step 2 again.
+
+
+STEP 3 - RUN THE TOOL
+
+Type this and press Enter:
+
+     D2SkinPatch.exe
+
+Wait until you see a line starting with:
+
+     done:
+
+Close the black window and start the game.
+
+D2SkinPatch makes the Hound Wolf Squad costumes (UmberEyes, Canine, Lobo,
+NightHowl, Tundra) show up in the shop. It also saves a backup of the game
+file named Reverse-preD2SkinChange.exe.back in the game folder. Do not
+delete it.
+
+
+OTHER THINGS YOU CAN TYPE
+
+Check first, change nothing:
+
+     D2SkinPatch.exe --dry-run
+
+Undo the patch (close the game first):
+
+     D2SkinPatch.exe --restore
+
+The game is not in Steam's normal folder (use your own path, keep the quotes):
+
+     D2SkinPatch.exe "D:\Games\Resident Evil ReVerse\Reverse.exe"
+
+Show help:
+
+     D2SkinPatch.exe --help
+
+Other tools work the same way. Type the tool name, a space, then whatever
+the tool's instructions say, for example:
+
+     SomeTool.exe --option value
+
+
+WHAT THE MESSAGES MEAN
+
+"done:"
+   It worked.
+
+"already patched"
+   It was already done before. Nothing to do.
+
+"does not match this build"
+   Your game version is not supported. Nothing was changed.
+
+"file in use"
+   The game is still open. Close it and run the tool again.
+
+"access denied"
+   Run Command Prompt as administrator:
+   1. Close the game.
+   2. Press Start, type cmd.
+   3. Right-click Command Prompt -> Run as administrator.
+   4. Type cd /d, a space, then the folder path in quotes, and press Enter:
+
+        cd /d "C:\Users\YourName\Downloads\D2SkinPatch"
+
+   5. Type D2SkinPatch.exe and press Enter.
+
+"backup ... already exists but differs"
+   The game was updated. Delete Reverse-preD2SkinChange.exe.back from the
+   game folder and run the tool again.
+
+"is not recognized as an internal or external command"
+   The black window is in the wrong folder, or the name is misspelled.
+   Type dir and press Enter to see the files in this folder. If you do not
+   see D2SkinPatch.exe, close the window and do Step 2 again.
+
+
+WINDOWS WARNINGS
+
+"Windows protected your PC"
+   Click More info -> Run anyway. Only do this for files from the official
+   download page.
+
+
+USEFUL KEYS
+
+Tab       Finishes a file name. Type D2 and press Tab.
+Ctrl+C    Stops a tool that is still running.
+Up arrow  Shows the last thing you typed.

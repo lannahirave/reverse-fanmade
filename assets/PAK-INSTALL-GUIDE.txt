@@ -1,0 +1,83 @@
+REVERSE COMMUNITY MODS - INSTALLING .PAK FILES
+
+This guide explains how to add .pak mod files, such as extra costumes, to your
+copy of Resident Evil Re:Verse. Mods only change your own game. Back up any
+file before you replace it.
+
+WHAT YOU NEED
+
+- Your own installed copy of Resident Evil Re:Verse.
+- One or more mod files named like this:
+
+  re_chunk_000.pak.patch_001.pak
+
+FIND THE GAME FOLDER
+
+The game folder is the folder that contains Reverse.exe.
+
+Default Windows location:
+
+  C:\Program Files (x86)\Steam\steamapps\common\Resident Evil ReVerse
+
+Default Linux or Steam Deck location:
+
+  ~/.local/share/Steam/steamapps/common/Resident Evil ReVerse
+
+If the game is installed elsewhere, open Steam, right-click Resident Evil
+Re:Verse, choose Manage, then Browse local files.
+
+INSTALL A .PAK FILE
+
+1. Exit the game completely.
+2. Open the game folder and check which re_chunk_000.pak.patch_XXX.pak files
+   are already there.
+3. Copy the mod file into the game folder, next to Reverse.exe. Do not put it
+   in a subfolder.
+4. Give it the next free number. The numbers must start at 001 and continue
+   without gaps:
+
+     No patch files yet           ->  re_chunk_000.pak.patch_001.pak
+     patch_001 already present    ->  re_chunk_000.pak.patch_002.pak
+     patch_001 to patch_003       ->  re_chunk_000.pak.patch_004.pak
+
+   The game reads patch files in order and stops at the first missing number.
+   If patch_002 is missing, patch_003 and every later file is ignored.
+5. Keep the rest of the name exactly as shown. The number always has three
+   digits, and the file must end in .pak.
+6. Start the game and check that the mod appears.
+
+INSTALL SEVERAL MODS
+
+Repeat the steps above for each mod, giving each one the next free number.
+Never overwrite an existing patch file unless the mod author tells you to
+replace that exact file.
+
+If two mods change the same item, the file with the higher number takes
+priority. If a mod does not appear, try giving it a higher number than the
+mods that might conflict with it.
+
+Some mods also include a save file or other files. Follow the instructions
+that come with that mod for those files.
+
+UNINSTALL A .PAK FILE
+
+1. Exit the game completely.
+2. Delete or move the mod file out of the game folder.
+3. Renumber the remaining patch files so they again start at 001 with no
+   gaps. For example, if you remove patch_002 from patch_001 to patch_003,
+   rename patch_003 to patch_002.
+
+Do not delete re_chunk_000.pak itself. That is the main game data file.
+
+TROUBLESHOOTING
+
+- The mod does not appear: check that the file is next to Reverse.exe, that
+  the name is spelled exactly right, and that no number is missing before it.
+- Windows hides file extensions: in File Explorer, open View and enable File
+  name extensions, then check that the file does not end in .pak.pak or
+  .pak.txt.
+- The game crashes or shows broken textures after installing a mod: remove the
+  most recently added patch file and renumber the rest. Then ask the mod
+  author for an updated version.
+- A game update or Verify integrity of game files may change the game data.
+  If mods stop working afterwards, reinstall them in the same order.
