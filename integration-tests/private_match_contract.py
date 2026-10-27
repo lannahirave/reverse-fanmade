@@ -31,7 +31,7 @@ def main():
         assert isinstance(info['sessionId'], str) and len(info['sessionId']) == 32
         assert type(info['gameSessionSequenceNo']) is int
         assert isinstance(info['serviceEncryptionKey'], str)
-        assert len(info['keyword']) == 4 and set(info['keyword']) <= set(string.ascii_uppercase + string.digits), info
+        assert len(info['keyword']) == 4 and set(info['keyword']) <= set(string.digits), info
         assert [p['accountId'] for p in info['member']['players']] == [host['id']]
         sid, keyword = info['sessionId'], info['keyword']
         event(wh, 'players:created')

@@ -362,7 +362,7 @@ public sealed class MatchmakingCoordinator(
 
     private static string NewKeyword()
     {
-        const string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        const string alphabet = "0123456789";
         return string.Create(4, alphabet, static (span, table) =>
         {
             foreach (ref var c in span) c = table[RandomNumberGenerator.GetInt32(table.Length)];
