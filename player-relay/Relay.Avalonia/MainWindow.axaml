@@ -100,7 +100,7 @@
                 <TextBlock Text="?" Classes="help-glyph" />
               </Border>
             </StackPanel>
-            <TextBox x:Name="ServerApiKeyEntry" Classes="form-field" PasswordChar="•" MaxLength="1024" KeyDown="OnBackendKeyDown" />
+            <TextBox x:Name="ServerApiKeyEntry" Classes="form-field" PasswordChar="•" MaxLength="128" KeyDown="OnBackendKeyDown" />
           </StackPanel>
 
           <Border Margin="0,22,0,0" BorderBrush="#39322D" BorderThickness="0,1,0,0" Padding="0,20,0,0">

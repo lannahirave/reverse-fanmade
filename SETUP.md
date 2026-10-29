@@ -227,10 +227,10 @@ request.
 
 | Setting | Default | Meaning |
 | --- | --- | --- |
-| `Access__ApiKey` | empty | Shared key, 16–1024 characters; empty disables the check |
+| `Access__ApiKey` | empty | Shared key of 16–128 letters, digits, dots, dashes or underscores; empty disables the check |
 
-The relay app accepts keys of 16–128 letters, digits, dots, dashes and
-underscores. Use HTTPS when the backend is reachable from the internet, so the
+The backend and the relay app accept the same keys. The backend does not start
+with a key outside this format; replace such a key before updating. Use HTTPS when the backend is reachable from the internet, so the
 key is not sent in clear text. The UDP signaling port is not covered by the key.
 
 ## Configure the game

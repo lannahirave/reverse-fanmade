@@ -19,11 +19,24 @@ static void Check(bool ok, string message)
 await EmoteBridgeTests.Run();
 await EmoteBridgeTests.RunUnsupportedBackend();
 var upstreamPort = Port(); var relayPort = Port(); var tlsPort = Port();
-var player = new RelaySettings { Username = "Гравець 🎮", SecretKey = "test secret", BackendAddress = $"http://127.0.0.1:{upstreamPort}", ServerApiKey = "  relay test api key 0123456789  " };
+var player = new RelaySettings { Username = "Гравець 🎮", SecretKey = "test secret", BackendAddress = $"http://127.0.0.1:{upstreamPort}", ServerApiKey = "  relay-test-api-key-0123456789  " };
 var accountId = Guid.NewGuid().ToString("N");
 var accountToken = Convert.ToHexString(System.Security.Cryptography.RandomNumberGenerator.GetBytes(32));
 Check(!System.Text.Json.JsonSerializer.Serialize(player).Contains("test secret"), "settings do not serialize the secret");
-Check(!System.Text.Json.JsonSerializer.Serialize(player).Contains("api key"), "settings do not serialize the server API key");
+Check(!System.Text.Json.JsonSerializer.Serialize(player).Contains("api-key"), "settings do not serialize the server API key");
+foreach (var badKey in new[] { "ключ-сервера-0123456789", "has spaces 0123456789", "short-key-12345", new string('a', 129) })
+{
+    try
+    {
+        new RelaySettings { Username = "player", SecretKey = "secret", BackendAddress = "http://127.0.0.1:6080", ServerApiKey = badKey }.Validate();
+        Check(false, "malformed server API key is refused before sign-in: " + badKey.Length);
+    }
+    catch (RelayException ex) { Check(ex.Code == RelayErrorCode.InvalidServerApiKey, "malformed server API key is refused before sign-in: " + badKey.Length); }
+}
+Check(!RelaySettings.IsValidServerApiKey(new string('a', 16) + "\n") && !RelaySettings.IsValidServerApiKey(new string('a', 15)),
+      "server API key helper refuses a trailing line break and 15 characters");
+Check(RelaySettings.IsValidServerApiKey("") && RelaySettings.IsValidServerApiKey(new string('a', 16)) && RelaySettings.IsValidServerApiKey(new string('a', 128)) &&
+      RelaySettings.IsValidServerApiKey("Key.with-all_kinds09"), "well-formed server API keys are accepted");
 var expectedName = Convert.ToBase64String(Encoding.UTF8.GetBytes(player.Username));
 var builder = WebApplication.CreateBuilder();
 builder.Logging.ClearProviders();
@@ -32,7 +45,7 @@ await using var upstream = builder.Build();
 upstream.UseWebSockets();
 upstream.Run(async context =>
 {
-    if (context.Request.Headers[RelayService.ApiKeyHeader] is not { Count: 1 } apiKey || apiKey[0] != "relay test api key 0123456789")
+    if (context.Request.Headers[RelayService.ApiKeyHeader] is not { Count: 1 } apiKey || apiKey[0] != "relay-test-api-key-0123456789")
     { context.Response.StatusCode = 401; return; }
     if (context.Request.Headers[RelayService.NgrokSkipBrowserWarningHeader].ToString() != "1")
     { context.Response.StatusCode = 428; return; }
@@ -161,7 +174,7 @@ try
         entry["data"]?["direction"]?.GetValue<string>() == "backendToClient")
         .SelectMany(entry => Convert.FromBase64String(entry["data"]!["payload"]!["Base64"]!.GetValue<string>()))
         .SequenceEqual(bytes), "detailed relay WebSocket backend frames are exact");
-    Check(!ReadDetailedLines().Any(line => line.Contains("relay test api key", StringComparison.Ordinal)),
+    Check(!ReadDetailedLines().Any(line => line.Contains("relay-test-api-key", StringComparison.Ordinal)),
         "detailed relay log never records the server API key");
     relay.DetailedLogsEnabled = false;
     var count = ReadDetailedLines().Length;
@@ -172,7 +185,18 @@ try
     using (var resumed = await client.GetAsync($"http://127.0.0.1:{relayPort}/echo"))
         Check((int)resumed.StatusCode == 201, "relay continues when detailed logging resumes");
     Check(ReadDetailedLines().Length > count, "detailed relay logging resumes live");
-    foreach (var (rejectedKey, rejectedCase) in new[] { ("wrong key", "wrong"), ("", "missing") })
+    {
+        var malformed = new RelayService(Path.Combine(certDirectory, "malformed-logs")) { DanceDataLocator = () => null };
+        try
+        {
+            await malformed.StartAsync(new RelaySettings { Username = player.Username, SecretKey = player.SecretKey,
+                BackendAddress = player.BackendAddress, ServerApiKey = "ключ-сервера-0123456789" }, Port(), Port(), certDirectory);
+            Check(false, "relay start refuses a non-Latin server API key before sign-in");
+        }
+        catch (RelayException ex) { Check(ex.Code == RelayErrorCode.InvalidServerApiKey, "relay start refuses a non-Latin server API key before sign-in"); }
+        finally { await malformed.DisposeAsync(); }
+    }
+    foreach (var (rejectedKey, rejectedCase) in new[] { ("wrong-key-0123456789abcdef", "wrong"), ("", "missing") })
     {
         var rejected = new RelayService(Path.Combine(certDirectory, "rejected-logs")) { DanceDataLocator = () => null };
         try
@@ -214,7 +238,7 @@ if (args.Length == 2 && args[0] == "--backend")
         RedirectStandardOutput = true, RedirectStandardError = true
     };
     info.ArgumentList.Add(backendDll);
-    const string serverKey = "real backend api key 0123456789";
+    const string serverKey = "real-backend-api-key-0123456789";
     info.Environment["Relay__Enabled"] = "true";
     info.Environment["Access__ApiKey"] = serverKey;
     info.Environment["Steam__Mode"] = "fallback";

@@ -121,7 +121,7 @@ public sealed class UkrainianTranslation : TranslationBase
     public override string GenerateButton => "СТВОРИТИ";
     public override string GenerateApiKeyTooltip => "Створити випадковий API-ключ сервера.";
     public override string CopyApiKeyTooltip => "Скопіювати API-ключ сервера, щоб передати гравцям.";
-    public override string ErrorInvalidServerApiKey => "Введіть API-ключ сервера довжиною до 1024 символів без керівних символів або залиште порожнім.";
+    public override string ErrorInvalidServerApiKey => "API-ключ сервера має містити 16–128 літер, цифр, крапок, дефісів або підкреслень або бути порожнім.";
     public override string ErrorServerApiKeyRejected => "Сервер відхилив API-ключ сервера. Попросіть у хоста актуальний ключ.";
     public override string ErrorServerUnreachable => "Не вдалося під'єднатися до сервера, або він закрив з'єднання. Перевірте адресу бекенду.";
     public override string ErrorInvalidHostApiKey => "API-ключ сервера має містити 16–128 літер, цифр, крапок, дефісів або підкреслень або бути порожнім.";

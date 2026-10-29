@@ -213,7 +213,7 @@ public static partial class ZeroTierHost
     public static string ValidateApiKey(string? apiKey)
     {
         var value = apiKey?.Trim() ?? "";
-        if (value.Length > 0 && !ApiKeyPattern().IsMatch(value))
+        if (!RelaySettings.IsValidServerApiKey(value))
             throw new DesktopException(DesktopErrorCode.InvalidServerApiKey);
         return value;
     }
@@ -242,9 +242,6 @@ public static partial class ZeroTierHost
 
     [GeneratedRegex(@"(?<![\d.])(?:\d{1,3}\.){3}\d{1,3}(?![\d.])")]
     private static partial Regex Ipv4Pattern();
-
-    [GeneratedRegex("^[A-Za-z0-9._-]{16,128}$")]
-    private static partial Regex ApiKeyPattern();
 }
 
 internal sealed class BackendHostController : IAsyncDisposable

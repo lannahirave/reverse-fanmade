@@ -40,7 +40,15 @@ try
     var capture = builder.Configuration.GetSection("Capture").Get<CaptureOptions>() ?? new CaptureOptions();
     capture.Validate();
     var access = builder.Configuration.GetSection("Access").Get<AccessOptions>() ?? new AccessOptions();
-    access.Validate();
+    try
+    {
+        access.Validate();
+    }
+    catch (ArgumentException exception)
+    {
+        Log.ForContext("UserFacing", true).Fatal("{Problem:l}", exception.Message);
+        throw;
+    }
     builder.Services.AddSingleton(access);
     var steam = builder.Configuration.GetSection("Steam").Get<SteamOptions>() ?? new SteamOptions();
     steam.Validate();

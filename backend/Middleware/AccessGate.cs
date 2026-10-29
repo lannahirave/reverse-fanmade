@@ -21,7 +21,7 @@ public sealed class AccessGate(RequestDelegate next, AccessOptions options)
 
     private bool Authorized(Microsoft.Extensions.Primitives.StringValues values)
     {
-        if (values.Count != 1 || values[0] is not { Length: > 0 and <= 1024 } provided) return false;
+        if (values.Count != 1 || values[0] is not { Length: > 0 and <= AccessOptions.MaxKeyLength } provided) return false;
         return CryptographicOperations.FixedTimeEquals(SHA256.HashData(Encoding.UTF8.GetBytes(provided)), expected);
     }
 }

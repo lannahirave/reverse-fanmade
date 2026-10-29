@@ -121,7 +121,7 @@ public sealed class ChineseTranslation : TranslationBase
     public override string GenerateButton => "生成";
     public override string GenerateApiKeyTooltip => "生成随机的服务器 API 密钥。";
     public override string CopyApiKeyTooltip => "复制服务器 API 密钥以分享给玩家。";
-    public override string ErrorInvalidServerApiKey => "请输入不超过 1024 个字符且不含控制字符的服务器 API 密钥，或留空。";
+    public override string ErrorInvalidServerApiKey => "服务器 API 密钥必须为 16–128 个字母、数字、点、连字符或下划线，或留空。";
     public override string ErrorServerApiKeyRejected => "服务器拒绝了服务器 API 密钥。请向主机索要当前密钥。";
     public override string ErrorServerUnreachable => "无法连接到服务器，或服务器关闭了连接。请检查后端地址。";
     public override string ErrorInvalidHostApiKey => "服务器 API 密钥必须为 16–128 个字母、数字、点、连字符或下划线，或留空。";

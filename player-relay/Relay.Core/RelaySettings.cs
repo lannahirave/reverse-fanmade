@@ -1,9 +1,10 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 
 namespace ReVerse.Relay;
 
-public sealed class RelaySettings
+public sealed partial class RelaySettings
 {
     public string Username { get; set; } = "";
     public string BackendAddress { get; set; } = "";
@@ -28,7 +29,7 @@ public sealed class RelaySettings
         if (SecretKey.Length is < 1 or > 1024)
             throw new RelayException(RelayErrorCode.InvalidSecretKey);
         ServerApiKey = ServerApiKey.Trim();
-        if (ServerApiKey.Length > 1024 || ServerApiKey.Any(char.IsControl))
+        if (!IsValidServerApiKey(ServerApiKey))
             throw new RelayException(RelayErrorCode.InvalidServerApiKey);
         if (!Uri.TryCreate(BackendAddress, UriKind.Absolute, out var uri) ||
             uri.Scheme is not ("http" or "https") || uri.AbsolutePath != "/" ||
@@ -36,6 +37,12 @@ public sealed class RelaySettings
             throw new RelayException(RelayErrorCode.InvalidBackendUrl);
         return uri;
     }
+
+    public static bool IsValidServerApiKey(string apiKey) =>
+        apiKey.Length == 0 || ServerApiKeyPattern().IsMatch(apiKey);
+
+    [GeneratedRegex(@"\A[A-Za-z0-9._-]{16,128}\z")]
+    private static partial Regex ServerApiKeyPattern();
 
     public static string DataDirectory => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ReVerseRelay");

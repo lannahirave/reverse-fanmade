@@ -117,7 +117,7 @@ public sealed class EnglishTranslation : TranslationBase
     public override string GenerateButton => "GENERATE";
     public override string GenerateApiKeyTooltip => "Create a random server API key.";
     public override string CopyApiKeyTooltip => "Copy the server API key to share with players.";
-    public override string ErrorInvalidServerApiKey => "Enter a server API key of up to 1024 characters without control characters, or leave it empty.";
+    public override string ErrorInvalidServerApiKey => "The server API key must be 16–128 letters, digits, dots, dashes or underscores, or empty.";
     public override string ErrorServerApiKeyRejected => "The server rejected the server API key. Ask the host for the current key.";
     public override string ErrorServerUnreachable => "Could not reach the server, or it closed the connection. Check the backend address.";
     public override string ErrorInvalidHostApiKey => "The server API key must be 16–128 letters, digits, dots, dashes or underscores, or empty.";

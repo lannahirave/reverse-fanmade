@@ -37,8 +37,17 @@ internal static class AccessGateTests
     internal static void Options()
     {
         Assert.Throws<ArgumentException>(() => new AccessOptions { ApiKey = "short" }.Validate(), "short keys are refused");
-        Assert.Throws<ArgumentException>(() => new AccessOptions { ApiKey = new string('a', 1025) }.Validate(), "oversized keys are refused");
+        Assert.Throws<ArgumentException>(() => new AccessOptions { ApiKey = new string('a', 129) }.Validate(), "oversized keys are refused");
         Assert.Throws<ArgumentException>(() => new AccessOptions { ApiKey = "0123456789abcde\n" + "f" }.Validate(), "control characters are refused");
+        Assert.Throws<ArgumentException>(() => new AccessOptions { ApiKey = "ключ-сервера-0123456789" }.Validate(), "non-Latin keys are refused");
+        Assert.Throws<ArgumentException>(() => new AccessOptions { ApiKey = "has spaces 0123456789" }.Validate(), "keys with spaces are refused");
+        Assert.Throws<ArgumentException>(() => new AccessOptions { ApiKey = new string('a', 15) }.Validate(), "15-character keys are refused");
+        var shortest = new AccessOptions { ApiKey = new string('a', 16) };
+        shortest.Validate();
+        Assert.That(shortest.Enabled, "16-character keys are accepted");
+        var longest = new AccessOptions { ApiKey = new string('a', 128) };
+        longest.Validate();
+        Assert.That(longest.Enabled, "128-character keys are accepted");
         var ok = new AccessOptions { ApiKey = "  0123456789abcdef  " };
         ok.Validate();
         Assert.That(ok.ApiKey == Key && ok.Enabled, "key is trimmed and enables the gate");

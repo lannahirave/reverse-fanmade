@@ -1,7 +1,10 @@
+using System.Text.RegularExpressions;
+
 namespace ReVerse.Capture.Configuration;
 
-public sealed class AccessOptions
+public sealed partial class AccessOptions
 {
+    public const int MaxKeyLength = 128;
     public const string HeaderName = "x-api-key";
     public string ApiKey { get; set; } = "";
 
@@ -10,7 +13,10 @@ public sealed class AccessOptions
     public void Validate()
     {
         ApiKey = ApiKey.Trim();
-        if (ApiKey.Length is > 0 and < 16 || ApiKey.Length > 1024 || ApiKey.Any(char.IsControl))
-            throw new ArgumentException("Access:ApiKey must be empty or 16–1024 characters without control characters.");
+        if (ApiKey.Length > 0 && !KeyPattern().IsMatch(ApiKey))
+            throw new ArgumentException("Access:ApiKey must be empty or 16–128 letters, digits, dots, dashes or underscores.");
     }
+
+    [GeneratedRegex(@"\A[A-Za-z0-9._-]{16,128}\z")]
+    private static partial Regex KeyPattern();
 }

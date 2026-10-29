@@ -121,7 +121,7 @@ public sealed class SpanishTranslation : TranslationBase
     public override string GenerateButton => "GENERAR";
     public override string GenerateApiKeyTooltip => "Crear una clave API del servidor aleatoria.";
     public override string CopyApiKeyTooltip => "Copiar la clave API del servidor para compartirla con los jugadores.";
-    public override string ErrorInvalidServerApiKey => "Introduce una clave API del servidor de hasta 1024 caracteres sin caracteres de control, o déjala vacía.";
+    public override string ErrorInvalidServerApiKey => "La clave API del servidor debe tener de 16 a 128 letras, dígitos, puntos, guiones o guiones bajos, o estar vacía.";
     public override string ErrorServerApiKeyRejected => "El servidor rechazó la clave API del servidor. Pide al anfitrión la clave actual.";
     public override string ErrorServerUnreachable => "No se pudo conectar con el servidor o este cerró la conexión. Comprueba la dirección del backend.";
     public override string ErrorInvalidHostApiKey => "La clave API del servidor debe tener de 16 a 128 letras, dígitos, puntos, guiones o guiones bajos, o estar vacía.";
