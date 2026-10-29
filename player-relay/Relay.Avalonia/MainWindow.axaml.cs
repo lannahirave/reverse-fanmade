@@ -123,7 +123,7 @@ public sealed partial class MainWindow : Window
         CopyButton.Content = launchOptionsCopied ? text.CopiedButton : text.CopyButton;
         ToggleButton.Content = service is null ? text.StartRelayButton : text.StopRelayButton;
         ToolTip.SetTip(ToggleButton, service is null ? text.StartRelayTooltip : text.StopRelayTooltip);
-        StartGameButton.Content = text.StartGameButton;
+        StartGameText.Text = text.StartGameButton;
         ToolTip.SetTip(StartGameButton, text.StartGameTooltip);
         RenderDetailedLogs();
         RelayPortsText.Text = text.RelayPorts;
