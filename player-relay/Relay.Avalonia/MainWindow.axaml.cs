@@ -13,6 +13,7 @@ namespace ReVerse.Relay.Desktop;
 public sealed partial class MainWindow : Window
 {
     private const string LaunchOptions = "/Rebe/HjmUriStr:http://127.0.0.1:5080";
+    private const string GameLaunchUri = "steam://rungameid/1236300";
     private const string GuideUrl = "https://steamcommunity.com/sharedfiles/filedetails/?id=3800233626";
     private const int RelayHttpPort = 5080;
     private const int RelayHttpsPort = 5081;
@@ -122,6 +123,8 @@ public sealed partial class MainWindow : Window
         CopyButton.Content = launchOptionsCopied ? text.CopiedButton : text.CopyButton;
         ToggleButton.Content = service is null ? text.StartRelayButton : text.StopRelayButton;
         ToolTip.SetTip(ToggleButton, service is null ? text.StartRelayTooltip : text.StopRelayTooltip);
+        StartGameButton.Content = text.StartGameButton;
+        ToolTip.SetTip(StartGameButton, text.StartGameTooltip);
         RenderDetailedLogs();
         RelayPortsText.Text = text.RelayPorts;
         PleaseWaitText.Text = text.PleaseWait;
@@ -322,6 +325,7 @@ public sealed partial class MainWindow : Window
             return;
         busy = true;
         ToggleButton.IsEnabled = false;
+        StartGameButton.IsEnabled = false;
         BusyOverlay.IsVisible = true;
         HideError();
         try
@@ -369,6 +373,27 @@ public sealed partial class MainWindow : Window
             busy = false;
             BusyOverlay.IsVisible = false;
             ToggleButton.IsEnabled = true;
+            StartGameButton.IsEnabled = service is not null;
+        }
+    }
+
+    private async void OnStartGameClicked(object? sender, RoutedEventArgs e)
+    {
+        if (busy || service is null)
+            return;
+        try
+        {
+            var launcher = GetTopLevel(this)?.Launcher;
+            if (launcher is null || !await launcher.LaunchUriAsync(new Uri(GameLaunchUri)))
+                throw new DesktopException(DesktopErrorCode.GameCouldNotStart);
+        }
+        catch (DesktopException exception)
+        {
+            ShowError(exception);
+        }
+        catch (Exception exception)
+        {
+            ShowError(new DesktopException(DesktopErrorCode.GameCouldNotStart, innerException: exception));
         }
     }
 

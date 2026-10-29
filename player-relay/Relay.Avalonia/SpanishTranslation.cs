@@ -30,6 +30,8 @@ public sealed class SpanishTranslation : TranslationBase
     public override string StopRelayButton => "DETENER RELAY";
     public override string StartRelayTooltip => "Inicia sesión y arranca el relay local.";
     public override string StopRelayTooltip => "Detén el relay local.";
+    public override string StartGameButton => "INICIAR JUEGO";
+    public override string StartGameTooltip => "Inicia el juego a través de Steam. Disponible mientras el relay está en marcha.";
     public override string DetailedLogsOnButton => "REGISTROS DETALLADOS: ACTIVADOS";
     public override string DetailedLogsOffButton => "REGISTROS DETALLADOS: DESACTIVADOS";
     public override string DetailedLogsDescription => "Registra URL, cabeceras, cuerpos, mensajes WebSocket y paquetes de señalización completos, incluidas las credenciales.";
@@ -123,4 +125,5 @@ public sealed class SpanishTranslation : TranslationBase
     public override string ErrorServerApiKeyRejected => "El servidor rechazó la clave API del servidor. Pide al anfitrión la clave actual.";
     public override string ErrorServerUnreachable => "No se pudo conectar con el servidor o este cerró la conexión. Comprueba la dirección del backend.";
     public override string ErrorInvalidHostApiKey => "La clave API del servidor debe tener de 16 a 128 letras, dígitos, puntos, guiones o guiones bajos, o estar vacía.";
+    public override string ErrorGameCouldNotStart => "No se pudo iniciar el juego a través de Steam. Asegúrate de que Steam esté instalado y con la sesión iniciada.";
 }

@@ -30,6 +30,8 @@ public sealed class ChineseTranslation : TranslationBase
     public override string StopRelayButton => "停止中继";
     public override string StartRelayTooltip => "登录并启动本地中继。";
     public override string StopRelayTooltip => "停止本地中继。";
+    public override string StartGameButton => "启动游戏";
+    public override string StartGameTooltip => "通过 Steam 启动游戏。中继运行时可用。";
     public override string DetailedLogsOnButton => "详细日志：已开启";
     public override string DetailedLogsOffButton => "详细日志：已关闭";
     public override string DetailedLogsDescription => "记录完整网址、标头、正文、WebSocket 消息和信令数据包，包括登录凭据。";
@@ -123,4 +125,5 @@ public sealed class ChineseTranslation : TranslationBase
     public override string ErrorServerApiKeyRejected => "服务器拒绝了服务器 API 密钥。请向主机索要当前密钥。";
     public override string ErrorServerUnreachable => "无法连接到服务器，或服务器关闭了连接。请检查后端地址。";
     public override string ErrorInvalidHostApiKey => "服务器 API 密钥必须为 16–128 个字母、数字、点、连字符或下划线，或留空。";
+    public override string ErrorGameCouldNotStart => "无法通过 Steam 启动游戏。请确认已安装 Steam 并已登录。";
 }

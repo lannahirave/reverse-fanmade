@@ -57,6 +57,11 @@ foreach (var language in new TranslationService().AvailableLanguages)
           !language.UdpLoggingOnButton.Contains('?') &&
           !language.UdpLoggingOffButton.Contains('?') &&
           !language.UdpLoggingDescription.Contains('?'), "UDP controls translated: " + language.Code);
+foreach (var language in new TranslationService().AvailableLanguages)
+    Check(!string.IsNullOrWhiteSpace(language.StartGameButton) &&
+          !string.IsNullOrWhiteSpace(language.StartGameTooltip) &&
+          language.GetDesktopErrorText(DesktopErrorCode.GameCouldNotStart, null, null) == language.ErrorGameCouldNotStart &&
+          !string.IsNullOrWhiteSpace(language.ErrorGameCouldNotStart), "start game control translated: " + language.Code);
 if (OperatingSystem.IsWindows())
 {
     var launcher = Path.Combine(Path.GetFullPath(folder), "ReVerse.Capture.exe");

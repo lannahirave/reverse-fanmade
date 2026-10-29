@@ -32,6 +32,8 @@ public interface ITranslation
     string StopRelayButton { get; }
     string StartRelayTooltip { get; }
     string StopRelayTooltip { get; }
+    string StartGameButton { get; }
+    string StartGameTooltip { get; }
     string DetailedLogsOnButton { get; }
     string DetailedLogsOffButton { get; }
     string DetailedLogsDescription { get; }
@@ -125,6 +127,7 @@ public interface ITranslation
     string ErrorServerApiKeyRejected { get; }
     string ErrorServerUnreachable { get; }
     string ErrorInvalidHostApiKey { get; }
+    string ErrorGameCouldNotStart { get; }
     string GetRelayStatusText(RelayStatus status);
     string GetRelayErrorText(RelayErrorCode code, int? statusCode);
     string GetDesktopErrorText(DesktopErrorCode code, string? detail, string? entryName);
