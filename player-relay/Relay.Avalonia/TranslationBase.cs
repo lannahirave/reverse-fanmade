@@ -11,7 +11,7 @@ public abstract class TranslationBase : ITranslation
     public abstract string BrandPrefix { get; }
     public abstract string BrandAccent { get; }
     public abstract string BrandSuffix { get; }
-    public abstract string Tagline { get; }
+    public abstract string DiscordTooltip { get; }
     public abstract string LanguageSelectorTooltip { get; }
     public abstract string HostBackendButton { get; }
     public abstract string RelayOnlyButton { get; }

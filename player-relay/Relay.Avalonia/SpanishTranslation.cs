@@ -8,7 +8,7 @@ public sealed class SpanishTranslation : TranslationBase
     public override string BrandPrefix => "RE";
     public override string BrandAccent => "VERSE";
     public override string BrandSuffix => " RELAY";
-    public override string Tagline => "UTILIDAD DE CONEXIÓN DE LA COMUNIDAD";
+    public override string DiscordTooltip => "Únete al servidor de Discord de la comunidad.";
     public override string LanguageSelectorTooltip => "Selecciona el idioma de la interfaz.";
     public override string HostBackendButton => "ALOJAR BACKEND  ›";
     public override string RelayOnlyButton => "‹  SOLO RELAY";

@@ -10,7 +10,7 @@ public interface ITranslation
     string BrandPrefix { get; }
     string BrandAccent { get; }
     string BrandSuffix { get; }
-    string Tagline { get; }
+    string DiscordTooltip { get; }
     string LanguageSelectorTooltip { get; }
     string HostBackendButton { get; }
     string RelayOnlyButton { get; }

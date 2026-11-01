@@ -10,32 +10,13 @@
         WindowStartupLocation="CenterScreen">
   <Grid RowDefinitions="74,*">
     <Border Grid.Row="0" Background="#100E0D" BorderBrush="#39322D" BorderThickness="0,0,0,1">
-      <Grid Margin="24,0" ColumnDefinitions="Auto,*,Auto,Auto,Auto" ColumnSpacing="12">
-        <Grid VerticalAlignment="Center" ColumnDefinitions="34,Auto" ColumnSpacing="14">
-          <Border Width="29" Height="29" BorderBrush="#C7212B" BorderThickness="1" HorizontalAlignment="Left" VerticalAlignment="Center">
-            <Border.RenderTransform>
-              <RotateTransform Angle="45" />
-            </Border.RenderTransform>
-            <TextBlock Text="+" Foreground="#C7212B" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center">
-              <TextBlock.RenderTransform>
-                <RotateTransform Angle="-45" />
-              </TextBlock.RenderTransform>
-            </TextBlock>
-          </Border>
-          <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="4">
-            <TextBlock x:Name="BrandText" FontFamily="Impact,DejaVu Sans" FontSize="23">
-              <TextBlock.Inlines>
-                <Run x:Name="BrandPrefixRun" Text="" />
-                <Run x:Name="BrandAccentRun" Text="" Foreground="#C7212B" />
-                <Run x:Name="BrandSuffixRun" Text="" />
-              </TextBlock.Inlines>
-            </TextBlock>
-            <TextBlock x:Name="TaglineText" Classes="label" Foreground="#5E5751" />
-          </StackPanel>
-        </Grid>
+      <Grid Margin="24,0" ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="12">
+        <TextBlock x:Name="BrandText" Grid.Column="0" FontFamily="Impact,DejaVu Sans" FontSize="23" HorizontalAlignment="Center" VerticalAlignment="Center">
+          <TextBlock.Inlines><Run x:Name="BrandPrefixRun" Text="" /><Run x:Name="BrandAccentRun" Text="" Foreground="#C7212B" /><Run x:Name="BrandSuffixRun" Text="" /></TextBlock.Inlines>
+        </TextBlock>
 
         <Button x:Name="GuideButton"
-                Grid.Column="2"
+                Grid.Column="1"
                 Classes="compact"
                 Height="34"
                 VerticalAlignment="Center"
@@ -43,6 +24,20 @@
                 Content=""
                 ToolTip.Tip=""
                 Click="OnGuideClicked" />
+
+        <Button x:Name="DiscordButton"
+                Grid.Column="2"
+                Classes="secondary"
+                Width="34"
+                Height="34"
+                Padding="0"
+                VerticalAlignment="Center"
+                HorizontalContentAlignment="Center"
+                VerticalContentAlignment="Center"
+                ToolTip.Tip=""
+                Click="OnDiscordClicked">
+          <Image Source="/Assets/ds-logo.png" Width="20" Height="16" Stretch="Uniform" />
+        </Button>
 
         <ComboBox x:Name="LanguageSelector"
                   Grid.Column="3"

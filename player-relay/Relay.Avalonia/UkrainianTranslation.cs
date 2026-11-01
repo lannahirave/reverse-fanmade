@@ -8,7 +8,7 @@ public sealed class UkrainianTranslation : TranslationBase
     public override string BrandPrefix => "RE";
     public override string BrandAccent => "VERSE";
     public override string BrandSuffix => " RELAY";
-    public override string Tagline => "УТИЛІТА ДЛЯ З’ЄДНАННЯ СПІЛЬНОТИ";
+    public override string DiscordTooltip => "Приєднатися до Discord-сервера спільноти.";
     public override string LanguageSelectorTooltip => "Виберіть мову інтерфейсу.";
     public override string HostBackendButton => "ХОСТ БЕКЕНДУ  ›";
     public override string RelayOnlyButton => "‹  ЛИШЕ РЕЛЕ";

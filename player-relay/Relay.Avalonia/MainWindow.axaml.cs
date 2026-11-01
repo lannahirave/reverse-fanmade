@@ -16,6 +16,9 @@ public sealed partial class MainWindow : Window
     private const string LaunchOptions = "/Rebe/HjmUriStr:http://127.0.0.1:5080";
     private const string SteamAppId = "1236300";
     private const string GameLaunchUri = "steam://rungameid/" + SteamAppId;
+    private const string DiscordBaseUrl = "https://discord.gg/";
+    private const string DiscordInviteCode = "9quUXs5PyQ";
+    private const string DiscordUrl = DiscordBaseUrl + DiscordInviteCode;
     private const string GuideUrl = "https://steamcommunity.com/sharedfiles/filedetails/?id=3800233626";
     private const int RelayHttpPort = 5080;
     private const int RelayHttpsPort = 5081;
@@ -104,7 +107,7 @@ public sealed partial class MainWindow : Window
         BrandPrefixRun.Text = text.BrandPrefix;
         BrandAccentRun.Text = text.BrandAccent;
         BrandSuffixRun.Text = text.BrandSuffix;
-        TaglineText.Text = text.Tagline;
+        ToolTip.SetTip(DiscordButton, text.DiscordTooltip);
         ToolTip.SetTip(LanguageSelector, text.LanguageSelectorTooltip);
         HostToggleButton.Content = hostExpanded ? text.RelayOnlyButton : text.HostBackendButton;
         ToolTip.SetTip(HostToggleButton, hostExpanded ? text.RelayOnlyTooltip : text.HostBackendTooltip);
@@ -203,13 +206,17 @@ public sealed partial class MainWindow : Window
         }
     }
 
-    private async void OnGuideClicked(object? sender, RoutedEventArgs e)
+    private void OnGuideClicked(object? sender, RoutedEventArgs e) => OpenLink(GuideUrl);
+
+    private void OnDiscordClicked(object? sender, RoutedEventArgs e) => OpenLink(DiscordUrl);
+
+    private async void OpenLink(string url)
     {
         try
         {
             var launcher = GetTopLevel(this)?.Launcher;
             if (launcher is not null)
-                await launcher.LaunchUriAsync(new Uri(GuideUrl));
+                await launcher.LaunchUriAsync(new Uri(url));
         }
         catch (Exception exception)
         {

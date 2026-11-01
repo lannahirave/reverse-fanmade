@@ -8,7 +8,7 @@ public sealed class ChineseTranslation : TranslationBase
     public override string BrandPrefix => "RE";
     public override string BrandAccent => "VERSE";
     public override string BrandSuffix => " RELAY";
-    public override string Tagline => "社区连接工具";
+    public override string DiscordTooltip => "加入社区 Discord 服务器。";
     public override string LanguageSelectorTooltip => "选择界面语言。";
     public override string HostBackendButton => "托管后端  ›";
     public override string RelayOnlyButton => "‹  仅中继";
