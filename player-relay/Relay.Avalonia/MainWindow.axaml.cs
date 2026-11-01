@@ -130,6 +130,8 @@ public sealed partial class MainWindow : Window
         ToolTip.SetTip(ToggleButton, service is null ? text.StartRelayTooltip : text.StopRelayTooltip);
         StartGameText.Text = text.StartGameButton;
         ToolTip.SetTip(StartGameButton, text.StartGameTooltip);
+        OpenGameFolderButton.Content = text.OpenGameFolderButton;
+        ToolTip.SetTip(OpenGameFolderButton, text.OpenGameFolderTooltip);
         RenderDetailedLogs();
         RelayPortsText.Text = text.RelayPorts;
         PleaseWaitText.Text = text.PleaseWait;
@@ -269,6 +271,50 @@ public sealed partial class MainWindow : Window
             try { SetDetailedLogsMarker(previous); } catch { }
             ShowError(exception);
         }
+    }
+
+    private async void OnOpenGameFolderClicked(object? sender, RoutedEventArgs e)
+    {
+        OpenGameFolderButton.IsEnabled = false;
+        try
+        {
+            var configured = settings.GameDirectory;
+            var folder = await Task.Run(() => GameFolder.Find(configured, SteamRoots()));
+            if (folder is null)
+            {
+                ShowError(new DesktopException(DesktopErrorCode.GameFolderNotFound));
+                return;
+            }
+            Process.Start(new ProcessStartInfo(folder) { UseShellExecute = true })?.Dispose();
+            HideError();
+        }
+        catch (Exception exception)
+        {
+            ShowError(exception);
+        }
+        finally
+        {
+            OpenGameFolderButton.IsEnabled = true;
+        }
+    }
+
+    private static IEnumerable<string> SteamRoots()
+    {
+        if (OperatingSystem.IsWindows())
+        {
+            using var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Software\Valve\Steam");
+            if (key?.GetValue("SteamPath") is string steamPath && !string.IsNullOrWhiteSpace(steamPath))
+                yield return steamPath.Replace('/', Path.DirectorySeparatorChar);
+            if (key?.GetValue("SteamExe") is string steamExe && Path.GetDirectoryName(steamExe) is { Length: > 0 } exeDir)
+                yield return exeDir.Replace('/', Path.DirectorySeparatorChar);
+            var programFilesX86 = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86);
+            if (!string.IsNullOrEmpty(programFilesX86)) yield return Path.Combine(programFilesX86, "Steam");
+            yield break;
+        }
+        var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        yield return Path.Combine(home, ".steam", "steam");
+        yield return Path.Combine(home, ".local", "share", "Steam");
+        yield return Path.Combine(home, ".var", "app", "com.valvesoftware.Steam", ".local", "share", "Steam");
     }
 
     private void OnUdpLoggingClicked(object? sender, RoutedEventArgs e)

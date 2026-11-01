@@ -32,6 +32,8 @@ public sealed class EnglishTranslation : TranslationBase
     public override string StopRelayTooltip => "Stop the local relay.";
     public override string StartGameButton => "START GAME";
     public override string StartGameTooltip => "Start the game through Steam. Available while the relay is running.";
+    public override string OpenGameFolderButton => "OPEN GAME FOLDER";
+    public override string OpenGameFolderTooltip => "Open the game installation folder in the file manager.";
     public override string StatusStopped => "Stopped";
     public override string StatusSigningIn => "Signing in…";
     public override string StatusRunningWaitingForGame => "Running — waiting for game";
@@ -122,4 +124,5 @@ public sealed class EnglishTranslation : TranslationBase
     public override string ErrorServerUnreachable => "Could not reach the server, or it closed the connection. Check the backend address.";
     public override string ErrorInvalidHostApiKey => "The server API key must be 16–128 letters, digits, dots, dashes or underscores, or empty.";
     public override string ErrorGameCouldNotStart => "Could not start the game through Steam. Make sure Steam is installed and signed in.";
+    public override string ErrorGameFolderNotFound => "Could not find the game folder. Start the game once through Steam, then try again.";
 }

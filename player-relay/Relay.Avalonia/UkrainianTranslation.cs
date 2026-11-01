@@ -32,6 +32,8 @@ public sealed class UkrainianTranslation : TranslationBase
     public override string StopRelayTooltip => "Зупинити локальний ретранслятор.";
     public override string StartGameButton => "ЗАПУСТИТИ ГРУ";
     public override string StartGameTooltip => "Запустити гру через Steam. Доступно, поки ретранслятор працює.";
+    public override string OpenGameFolderButton => "ВІДКРИТИ ПАПКУ ГРИ";
+    public override string OpenGameFolderTooltip => "Відкрити папку встановлення гри у файловому менеджері.";
     public override string DetailedLogsOnButton => "ДЕТАЛЬНІ ЛОГИ: УВІМКНЕНО";
     public override string DetailedLogsOffButton => "ДЕТАЛЬНІ ЛОГИ: ВИМКНЕНО";
     public override string DetailedLogsDescription => "Записує повні URL, заголовки, тіла, повідомлення WebSocket і пакети сигналізації, зокрема облікові дані.";
@@ -126,4 +128,5 @@ public sealed class UkrainianTranslation : TranslationBase
     public override string ErrorServerUnreachable => "Не вдалося під'єднатися до сервера, або він закрив з'єднання. Перевірте адресу бекенду.";
     public override string ErrorInvalidHostApiKey => "API-ключ сервера має містити 16–128 літер, цифр, крапок, дефісів або підкреслень або бути порожнім.";
     public override string ErrorGameCouldNotStart => "Не вдалося запустити гру через Steam. Переконайтеся, що Steam встановлено і ви увійшли в обліковий запис.";
+    public override string ErrorGameFolderNotFound => "Не вдалося знайти папку гри. Запустіть гру один раз через Steam і спробуйте ще раз.";
 }

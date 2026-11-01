@@ -16,6 +16,7 @@ static void Check(bool ok, string message)
     if (!ok) throw new Exception(message);
     Console.WriteLine("PASS " + message);
 }
+GameFolderTests.Run();
 await EmoteBridgeTests.Run();
 await EmoteBridgeTests.RunUnsupportedBackend();
 var upstreamPort = Port(); var relayPort = Port(); var tlsPort = Port();

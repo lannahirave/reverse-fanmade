@@ -35,6 +35,8 @@ public interface ITranslation
     string StartGameButton { get; }
     string StartGameTooltip { get; }
     string DetailedLogsOnButton { get; }
+    string OpenGameFolderButton { get; }
+    string OpenGameFolderTooltip { get; }
     string DetailedLogsOffButton { get; }
     string DetailedLogsDescription { get; }
     string DetailedLogsPathLabel { get; }
@@ -128,6 +130,7 @@ public interface ITranslation
     string ErrorServerUnreachable { get; }
     string ErrorInvalidHostApiKey { get; }
     string ErrorGameCouldNotStart { get; }
+    string ErrorGameFolderNotFound { get; }
     string GetRelayStatusText(RelayStatus status);
     string GetRelayErrorText(RelayErrorCode code, int? statusCode);
     string GetDesktopErrorText(DesktopErrorCode code, string? detail, string? entryName);

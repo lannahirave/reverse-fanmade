@@ -18,7 +18,8 @@ public enum DesktopErrorCode
     BackendUrlRequired,
     PortOwnerCouldNotClose,
     InvalidServerApiKey,
-    GameCouldNotStart
+    GameCouldNotStart,
+    GameFolderNotFound
 }
 
 public sealed class DesktopException : Exception

@@ -136,7 +136,10 @@
             </Grid>
           </StackPanel>
           <StackPanel Margin="0,20,0,0" Spacing="7">
-            <Button x:Name="DetailedLogsButton" Classes="secondary" Height="36" Click="OnDetailedLogsClicked" />
+            <Grid ColumnDefinitions="*,7,*">
+              <Button x:Name="DetailedLogsButton" Classes="secondary" Height="36" HorizontalAlignment="Stretch" Click="OnDetailedLogsClicked" />
+              <Button x:Name="OpenGameFolderButton" Grid.Column="2" Classes="secondary" Height="36" HorizontalAlignment="Stretch" Click="OnOpenGameFolderClicked" />
+            </Grid>
             <TextBlock x:Name="DetailedLogsDescriptionText" Classes="helper" TextWrapping="Wrap" />
             <TextBlock x:Name="DetailedLogsPathText" Classes="helper" TextWrapping="Wrap" IsVisible="False" />
           </StackPanel>

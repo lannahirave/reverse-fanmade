@@ -35,6 +35,8 @@ public abstract class TranslationBase : ITranslation
     public abstract string StopRelayTooltip { get; }
     public abstract string StartGameButton { get; }
     public abstract string StartGameTooltip { get; }
+    public abstract string OpenGameFolderButton { get; }
+    public abstract string OpenGameFolderTooltip { get; }
     public virtual string DetailedLogsOnButton => "DETAILED LOGS: ON";
     public virtual string DetailedLogsOffButton => "DETAILED LOGS: OFF";
     public virtual string DetailedLogsDescription => "Records full URLs, headers, bodies, WebSocket messages and signaling packets, including credentials.";
@@ -129,6 +131,7 @@ public abstract class TranslationBase : ITranslation
     public abstract string ErrorServerUnreachable { get; }
     public abstract string ErrorInvalidHostApiKey { get; }
     public abstract string ErrorGameCouldNotStart { get; }
+    public abstract string ErrorGameFolderNotFound { get; }
 
     public string GetRelayStatusText(RelayStatus status) => status switch
     {
@@ -179,6 +182,7 @@ public abstract class TranslationBase : ITranslation
         DesktopErrorCode.BackendUrlRequired => ErrorBackendUrlRequired,
         DesktopErrorCode.InvalidServerApiKey => ErrorInvalidHostApiKey,
         DesktopErrorCode.GameCouldNotStart => ErrorGameCouldNotStart,
+        DesktopErrorCode.GameFolderNotFound => ErrorGameFolderNotFound,
         DesktopErrorCode.PortOwnerCouldNotClose => string.Format(CultureInfo.InvariantCulture, ErrorPortOwnerCouldNotCloseFormat, entryName ?? ""),
         _ => code.ToString()
     };
