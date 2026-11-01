@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Globalization;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -13,7 +14,8 @@ namespace ReVerse.Relay.Desktop;
 public sealed partial class MainWindow : Window
 {
     private const string LaunchOptions = "/Rebe/HjmUriStr:http://127.0.0.1:5080";
-    private const string GameLaunchUri = "steam://rungameid/1236300";
+    private const string SteamAppId = "1236300";
+    private const string GameLaunchUri = "steam://rungameid/" + SteamAppId;
     private const string GuideUrl = "https://steamcommunity.com/sharedfiles/filedetails/?id=3800233626";
     private const int RelayHttpPort = 5080;
     private const int RelayHttpsPort = 5081;
@@ -383,9 +385,7 @@ public sealed partial class MainWindow : Window
             return;
         try
         {
-            var launcher = GetTopLevel(this)?.Launcher;
-            if (launcher is null || !await launcher.LaunchUriAsync(new Uri(GameLaunchUri)))
-                throw new DesktopException(DesktopErrorCode.GameCouldNotStart);
+            await Task.Run(StartGame);
         }
         catch (DesktopException exception)
         {
@@ -395,6 +395,24 @@ public sealed partial class MainWindow : Window
         {
             ShowError(new DesktopException(DesktopErrorCode.GameCouldNotStart, innerException: exception));
         }
+    }
+
+    private static void StartGame()
+    {
+        var steamExe = FindSteamExecutable();
+        var startInfo = steamExe is null
+            ? new ProcessStartInfo(GameLaunchUri) { UseShellExecute = true }
+            : new ProcessStartInfo(steamExe) { ArgumentList = { "-applaunch", SteamAppId, LaunchOptions }, UseShellExecute = false };
+        Process.Start(startInfo)?.Dispose();
+    }
+
+    private static string? FindSteamExecutable()
+    {
+        if (!OperatingSystem.IsWindows())
+            return null;
+        using var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Software\Valve\Steam");
+        var path = key?.GetValue("SteamExe") as string;
+        return !string.IsNullOrWhiteSpace(path) && File.Exists(path) ? Path.GetFullPath(path) : null;
     }
 
     private async Task StopAsync()
