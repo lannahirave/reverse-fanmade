@@ -84,7 +84,6 @@ public sealed class EnglishTranslation : TranslationBase
     public override string BackendFolderMissingFormat => "{0} was not found in this folder.";
     public override string RelayStartErrorSuffix => "Check the server address and make sure ports 5080 and 5081 are free.";
     public override string ErrorInvalidUsername => "Enter a username of 1–64 characters without control characters.";
-    public override string ErrorInvalidSecretKey => "Enter a secret key of 1–1024 characters.";
     public override string ErrorInvalidBackendUrl => "Enter a backend URL such as https://server.example.com or http://192.168.1.10:5080, without a path.";
     public override string ErrorSavedSettingsEmpty => "Saved settings are empty.";
     public override string ErrorRelayAlreadyRunning => "Relay is already running.";

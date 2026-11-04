@@ -88,7 +88,6 @@ public sealed class SpanishTranslation : TranslationBase
     public override string BackendFolderMissingFormat => "No se encontró {0} en esta carpeta.";
     public override string RelayStartErrorSuffix => "Comprueba la dirección del servidor y asegúrate de que los puertos 5080 y 5081 estén libres.";
     public override string ErrorInvalidUsername => "Introduce un nombre de usuario de 1–64 caracteres sin caracteres de control.";
-    public override string ErrorInvalidSecretKey => "Introduce una clave secreta de 1–1024 caracteres.";
     public override string ErrorInvalidBackendUrl => "Introduce una URL de backend, como https://server.example.com o http://192.168.1.10:5080, sin una ruta.";
     public override string ErrorSavedSettingsEmpty => "Los ajustes guardados están vacíos.";
     public override string ErrorRelayAlreadyRunning => "El relay ya está en ejecución.";

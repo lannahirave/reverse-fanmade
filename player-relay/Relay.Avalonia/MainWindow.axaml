@@ -76,7 +76,6 @@
             <TextBlock x:Name="UsernameLabelText" Classes="label" />
             <TextBox x:Name="UsernameEntry" Classes="form-field" MaxLength="64" />
           </StackPanel>
-          <TextBox x:Name="SecretEntry" IsVisible="False" />
 
           <StackPanel Margin="0,18,0,0" Spacing="0">
             <StackPanel Orientation="Horizontal">

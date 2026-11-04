@@ -88,7 +88,6 @@ public sealed class ChineseTranslation : TranslationBase
     public override string BackendFolderMissingFormat => "在此文件夹中未找到 {0}。";
     public override string RelayStartErrorSuffix => "请检查服务器地址，并确保端口 5080 和 5081 空闲。";
     public override string ErrorInvalidUsername => "请输入 1–64 个字符的用户名，且不得包含控制字符。";
-    public override string ErrorInvalidSecretKey => "请输入长度为 1–1024 个字符的密钥。";
     public override string ErrorInvalidBackendUrl => "请输入后端 URL，例如 https://server.example.com 或 http://192.168.1.10:5080，且不要包含路径。";
     public override string ErrorSavedSettingsEmpty => "保存的设置为空。";
     public override string ErrorRelayAlreadyRunning => "中继已在运行。";

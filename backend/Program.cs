@@ -145,7 +145,7 @@ try
                 try { login = await context.Request.ReadFromJsonAsync<RelayLoginRequest>(context.RequestAborted); }
                 catch (JsonException) { throw new BadHttpRequestException("Invalid login request.", 400); }
                 var accounts = context.RequestServices.GetRequiredService<RelayAccounts>();
-                var result = await Task.Run(() => accounts.Login(login?.Username, login?.SecretKey), context.RequestAborted);
+                var result = await Task.Run(() => accounts.Login(login?.Username), context.RequestAborted);
                 await context.Response.WriteAsJsonAsync(result);
                 Log.ForContext("UserFacing", true).ForContext("AccountId", result.AccountId)
                     .Information("Player signed in{AccountStatus:l}.", result.Created ? " with a new account" : "");
@@ -205,4 +205,4 @@ finally
     await Log.CloseAndFlushAsync();
 }
 
-internal sealed record RelayLoginRequest(string? Username, string? SecretKey);
+internal sealed record RelayLoginRequest(string? Username);

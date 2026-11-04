@@ -51,7 +51,7 @@ def main():
                 if time.monotonic() > deadline: raise
                 time.sleep(.1)
     def login(secret):
-        status, result = call('POST', '/relay/account/login', body={'username': 'Same name', 'secretKey': secret})
+        status, result = call('POST', '/relay/account/login', body={'username': 'player-' + secret, 'secretKey': secret})
         assert status == 200, result
         return result
     process = start()

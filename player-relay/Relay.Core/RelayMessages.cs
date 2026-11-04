@@ -15,7 +15,6 @@ public enum RelayStatus
 public enum RelayErrorCode
 {
     InvalidUsername,
-    InvalidSecretKey,
     InvalidBackendUrl,
     SavedSettingsEmpty,
     RelayAlreadyRunning,

@@ -87,7 +87,8 @@ Send each player:
 3. The launch option shown above.
 4. The **Server API key**, if you set one. Use **Copy** next to it.
 
-Each player chooses their own username.
+Each player chooses their own username. A username is the account, with no
+password, so each player should use a different one.
 
 ## 6. Linux or Steam Deck host
 

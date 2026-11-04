@@ -69,8 +69,8 @@ class Harness:
         finally:
             connection.close()
 
-    def account(self, username='same-name'):
-        account = self.request('POST', '/relay/account/login', body={'username': username, 'secretKey': uuid.uuid4().hex})
+    def account(self, username=None):
+        account = self.request('POST', '/relay/account/login', body={'username': username or 'player-' + uuid.uuid4().hex[:12], 'secretKey': uuid.uuid4().hex})
         account['id'] = account['accountId']
         token = self.request('POST', '/v1/steam-steam/sign/RVS-B-WW', account)['rebe_token']
         account['gameKey'] = self.request('POST', '/v1/open/reverse', account, headers={'Authorization': 'Bearer ' + token})['session_key']

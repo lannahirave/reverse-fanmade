@@ -54,7 +54,6 @@ public sealed partial class MainWindow : Window
         InitializeComponent();
         LanguageSelector.ItemsSource = localization.AvailableLanguages;
         localization.LanguageChanged += OnLanguageChanged;
-        SecretEntry.Text = CreateSessionSecret();
         LaunchOptionsEntry.Text = LaunchOptions;
         PlayersEntry.Value = 2;
         FillWaitEntry.Value = 15;
@@ -65,12 +64,6 @@ public sealed partial class MainWindow : Window
         if (SupportsBackendHosting)
             backendHost.RunningChanged += OnBackendRunningChanged;
         ApplyLanguage();
-    }
-
-    private static string CreateSessionSecret()
-    {
-        var seed = unchecked((int)DateTime.UtcNow.Ticks);
-        return new Random(seed).Next(1, 10_000_001).ToString(System.Globalization.CultureInfo.InvariantCulture);
     }
 
     private void OnLanguageChanged(object? sender, EventArgs e)
@@ -392,7 +385,6 @@ public sealed partial class MainWindow : Window
             }
 
             settings.Username = UsernameEntry.Text ?? "";
-            settings.SecretKey = SecretEntry.Text ?? "";
             settings.BackendAddress = BackendEntry.Text ?? "";
             settings.ServerApiKey = ServerApiKeyEntry.Text ?? "";
             settings.LanguageCode = localization.Current.Code;
@@ -482,7 +474,6 @@ public sealed partial class MainWindow : Window
     private void SetInputsEnabled(bool enabled)
     {
         UsernameEntry.IsEnabled = enabled;
-        SecretEntry.IsEnabled = enabled;
         BackendEntry.IsEnabled = enabled;
         ServerApiKeyEntry.IsEnabled = enabled;
     }

@@ -16,8 +16,6 @@ public sealed partial class RelaySettings
     public bool DetailedLogsEnabled { get; set; }
     public string GameDirectory { get; set; } = "";
     [JsonIgnore]
-    public string SecretKey { get; set; } = "";
-    [JsonIgnore]
     public string ServerApiKey { get; set; } = "";
 
     public Uri Validate()
@@ -26,8 +24,6 @@ public sealed partial class RelaySettings
         BackendAddress = BackendAddress.Trim().TrimEnd('/');
         if (Username.Length is < 1 or > 64 || Username.Any(char.IsControl))
             throw new RelayException(RelayErrorCode.InvalidUsername);
-        if (SecretKey.Length is < 1 or > 1024)
-            throw new RelayException(RelayErrorCode.InvalidSecretKey);
         ServerApiKey = ServerApiKey.Trim();
         if (!IsValidServerApiKey(ServerApiKey))
             throw new RelayException(RelayErrorCode.InvalidServerApiKey);

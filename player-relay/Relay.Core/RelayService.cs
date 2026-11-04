@@ -67,7 +67,7 @@ public sealed class RelayService : IAsyncDisposable
         var loginUrl = new Uri(upstream, "/relay/account/login");
         using var loginRequest = new HttpRequestMessage(HttpMethod.Post, loginUrl)
         {
-            Content = JsonContent.Create(new { username = settings.Username, secretKey = settings.SecretKey })
+            Content = JsonContent.Create(new { username = settings.Username })
         };
         loginRequest.Headers.TryAddWithoutValidation(NgrokSkipBrowserWarningHeader, "1");
         var loginBytes = await loginRequest.Content.ReadAsByteArrayAsync(loginTimeout.Token);

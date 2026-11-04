@@ -90,7 +90,6 @@ public interface ITranslation
     string BackendFolderMissingFormat { get; }
     string RelayStartErrorSuffix { get; }
     string ErrorInvalidUsername { get; }
-    string ErrorInvalidSecretKey { get; }
     string ErrorInvalidBackendUrl { get; }
     string ErrorSavedSettingsEmpty { get; }
     string ErrorRelayAlreadyRunning { get; }

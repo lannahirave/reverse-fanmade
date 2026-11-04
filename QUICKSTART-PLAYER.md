@@ -43,8 +43,8 @@ In the relay app enter:
 - **Server API key (optional)**: the key supplied by the host, if any. Leave it
   empty otherwise. Enter it again each time you start the app.
 
-The relay creates its internal connection value automatically; there is no
-secret-key field to complete. Click **Start relay** and leave the app running.
+There is no password. The username is your account and is not case-sensitive:
+entering the same username again, on any PC, continues the same account. Click **Start relay** and leave the app running.
 The status beneath the button changes from **Signing in** to
 **Running — waiting for game**, then to **Running — connected to backend**
 after the game connects.

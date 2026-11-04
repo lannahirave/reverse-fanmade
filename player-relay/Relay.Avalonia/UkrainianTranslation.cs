@@ -88,7 +88,6 @@ public sealed class UkrainianTranslation : TranslationBase
     public override string BackendFolderMissingFormat => "У цій папці не знайдено {0}.";
     public override string RelayStartErrorSuffix => "Перевірте адресу сервера та переконайтеся, що порти 5080 і 5081 вільні.";
     public override string ErrorInvalidUsername => "Введіть ім’я користувача довжиною від 1 до 64 символів без керівних символів.";
-    public override string ErrorInvalidSecretKey => "Введіть секретний ключ довжиною від 1 до 1024 символів.";
     public override string ErrorInvalidBackendUrl => "Введіть URL бекенду, наприклад https://server.example.com або http://192.168.1.10:5080, без шляху.";
     public override string ErrorSavedSettingsEmpty => "Збережені налаштування порожні.";
     public override string ErrorRelayAlreadyRunning => "Ретранслятор уже працює.";

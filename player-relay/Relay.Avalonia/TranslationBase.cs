@@ -91,7 +91,6 @@ public abstract class TranslationBase : ITranslation
     public abstract string BackendFolderMissingFormat { get; }
     public abstract string RelayStartErrorSuffix { get; }
     public abstract string ErrorInvalidUsername { get; }
-    public abstract string ErrorInvalidSecretKey { get; }
     public abstract string ErrorInvalidBackendUrl { get; }
     public abstract string ErrorSavedSettingsEmpty { get; }
     public abstract string ErrorRelayAlreadyRunning { get; }
@@ -148,7 +147,6 @@ public abstract class TranslationBase : ITranslation
     public string GetRelayErrorText(RelayErrorCode code, int? statusCode) => code switch
     {
         RelayErrorCode.InvalidUsername => ErrorInvalidUsername,
-        RelayErrorCode.InvalidSecretKey => ErrorInvalidSecretKey,
         RelayErrorCode.InvalidBackendUrl => ErrorInvalidBackendUrl,
         RelayErrorCode.SavedSettingsEmpty => ErrorSavedSettingsEmpty,
         RelayErrorCode.RelayAlreadyRunning => ErrorRelayAlreadyRunning,

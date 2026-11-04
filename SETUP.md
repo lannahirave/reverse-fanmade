@@ -212,8 +212,8 @@ Fill in:
 3. **Server API key (optional)** — the key supplied by the host, if the host set
    one. Leave it empty otherwise. It is not saved between runs.
 
-The relay creates its internal connection value automatically; there is no
-secret-key field to complete.
+There is no password. The username is the account and is not case-sensitive:
+anyone who enters a username plays as that account.
 
 Click **Start relay** and keep the app running. The relay listens locally for
 the game on port `5080`; this port should not be exposed to the network.

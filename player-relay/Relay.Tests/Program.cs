@@ -20,16 +20,15 @@ GameFolderTests.Run();
 await EmoteBridgeTests.Run();
 await EmoteBridgeTests.RunUnsupportedBackend();
 var upstreamPort = Port(); var relayPort = Port(); var tlsPort = Port();
-var player = new RelaySettings { Username = "Гравець 🎮", SecretKey = "test secret", BackendAddress = $"http://127.0.0.1:{upstreamPort}", ServerApiKey = "  relay-test-api-key-0123456789  " };
+var player = new RelaySettings { Username = "Гравець 🎮", BackendAddress = $"http://127.0.0.1:{upstreamPort}", ServerApiKey = "  relay-test-api-key-0123456789  " };
 var accountId = Guid.NewGuid().ToString("N");
 var accountToken = Convert.ToHexString(System.Security.Cryptography.RandomNumberGenerator.GetBytes(32));
-Check(!System.Text.Json.JsonSerializer.Serialize(player).Contains("test secret"), "settings do not serialize the secret");
 Check(!System.Text.Json.JsonSerializer.Serialize(player).Contains("api-key"), "settings do not serialize the server API key");
 foreach (var badKey in new[] { "ключ-сервера-0123456789", "has spaces 0123456789", "short-key-12345", new string('a', 129) })
 {
     try
     {
-        new RelaySettings { Username = "player", SecretKey = "secret", BackendAddress = "http://127.0.0.1:6080", ServerApiKey = badKey }.Validate();
+        new RelaySettings { Username = "player", BackendAddress = "http://127.0.0.1:6080", ServerApiKey = badKey }.Validate();
         Check(false, "malformed server API key is refused before sign-in: " + badKey.Length);
     }
     catch (RelayException ex) { Check(ex.Code == RelayErrorCode.InvalidServerApiKey, "malformed server API key is refused before sign-in: " + badKey.Length); }
@@ -53,7 +52,7 @@ upstream.Run(async context =>
     if (context.Request.Path == "/relay/account/login")
     {
         var login = await context.Request.ReadFromJsonAsync<System.Text.Json.JsonElement>();
-        if (login.GetProperty("username").GetString() != player.Username || login.GetProperty("secretKey").GetString() != player.SecretKey)
+        if (login.GetProperty("username").GetString() != player.Username || login.TryGetProperty("secretKey", out _))
         { context.Response.StatusCode = 400; return; }
         await context.Response.WriteAsJsonAsync(new { accountId, username = player.Username, sessionToken = accountToken });
         return;
@@ -153,8 +152,8 @@ try
     }
     var entries = ReadDetailedLines().Select(line => JsonNode.Parse(line)!).ToArray();
     Check(entries.Any(entry => entry["type"]?.GetValue<string>() == "relayLoginRequest" &&
-        entry["data"]?["payload"]?["Utf8"]?.GetValue<string>()?.Contains(player.SecretKey, StringComparison.Ordinal) == true),
-        "detailed relay login includes the full secret");
+        entry["data"]?["payload"]?["Utf8"]?.GetValue<string>()?.Contains("\"username\"", StringComparison.Ordinal) == true),
+        "detailed relay login includes the username");
     var patchId = entries.First(entry => entry["type"]?.GetValue<string>() == "relayRequestStart" &&
         entry["data"]?["rawTarget"]?.GetValue<string>() == "/echo?q=a%2Fb&x=1")["data"]!["id"]!.GetValue<string>();
     byte[] Captured(string type, string id) => entries.Where(entry => entry["type"]?.GetValue<string>() == type &&
@@ -190,7 +189,7 @@ try
         var malformed = new RelayService(Path.Combine(certDirectory, "malformed-logs")) { DanceDataLocator = () => null };
         try
         {
-            await malformed.StartAsync(new RelaySettings { Username = player.Username, SecretKey = player.SecretKey,
+            await malformed.StartAsync(new RelaySettings { Username = player.Username,
                 BackendAddress = player.BackendAddress, ServerApiKey = "ключ-сервера-0123456789" }, Port(), Port(), certDirectory);
             Check(false, "relay start refuses a non-Latin server API key before sign-in");
         }
@@ -202,7 +201,7 @@ try
         var rejected = new RelayService(Path.Combine(certDirectory, "rejected-logs")) { DanceDataLocator = () => null };
         try
         {
-            await rejected.StartAsync(new RelaySettings { Username = player.Username, SecretKey = player.SecretKey,
+            await rejected.StartAsync(new RelaySettings { Username = player.Username,
                 BackendAddress = player.BackendAddress, ServerApiKey = rejectedKey }, Port(), Port(), certDirectory);
             Check(false, rejectedCase + " server API key is rejected at sign-in");
         }
@@ -265,13 +264,13 @@ if (args.Length == 2 && args[0] == "--backend")
             catch (HttpRequestException) { await Task.Delay(100, deadline.Token); }
         }
         var found = new List<string>();
-        foreach (var secret in new[] { "first secret", "second secret", "first secret" })
+        foreach (var name in new[] { "Same name", "Other name", "SAME NAME" })
         {
             var localPort = Port();
             await using var realRelay = new RelayService { DanceDataLocator = () => null };
             await realRelay.StartAsync(new RelaySettings
             {
-                Username = "Same name", SecretKey = secret, BackendAddress = $"http://127.0.0.1:{realPort}", ServerApiKey = serverKey
+                Username = name, BackendAddress = $"http://127.0.0.1:{realPort}", ServerApiKey = serverKey
             }, localPort, Port(), certDirectory);
             using var signed = await http.PostAsync($"http://127.0.0.1:{localPort}/v1/steam-steam/sign/RVS-B-WW", null);
             signed.EnsureSuccessStatusCode();
@@ -291,7 +290,7 @@ if (args.Length == 2 && args[0] == "--backend")
             try { await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "done", deadline.Token); }
             catch (WebSocketException) { }
         }
-        Check(found[0] != found[1] && found[0] == found[2], "real relay → backend match-or-create account identity");
+        Check(found[0] != found[1] && found[0] == found[2], "real relay → backend: a username is one account, ignoring case");
         async Task<string> Direct(string? key, string path = "/ready")
         {
             using var fresh = new HttpClient();
